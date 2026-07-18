@@ -1,5 +1,5 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.11';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.12';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
@@ -149,7 +149,13 @@ const LESSONS = {
   'thread-terms': {
     title: 'Threads — Major, Pitch, Minor',
     why: 'You tap a hole and the bolt won\'t go in, or it strips. That\'s a thread-percentage problem, not bad luck. Know the three diameters and you can pick the right drill instead of guessing.',
-    body: 'Major = outside diameter. Pitch = distance between threads (1/TPI for inch). Minor = the root. Tap-drill size sets how much thread you actually engage — ~75% is the shop standard; tighter risks breakage, looser risks stripping.',
+    body: `Here's a real one — a <b>1/2-13 UNC</b> bolt (major 0.500, 13 threads per inch).
+<b>1. Major</b> = the outside diameter = <b>0.500</b>. What the bolt measures across the threads.
+<b>2. Pitch</b> = 1 / TPI = 1 / 13 = <b>0.0769</b> in between threads.
+<b>3. Minor</b> = root diameter = major − 1.299 × pitch ≈ <b>0.400</b>. The smallest part of the thread.
+<b>4. Tap drill</b> = the hole you drill before tapping. Rule of thumb: major − pitch = 0.500 − 0.0769 = <b>0.423</b> (that's ~75% thread — the shop standard). A #3 drill (0.213) is for 1/4-20, NOT this.
+<b>5. % thread</b> = how much of the thread you actually engage. ~75% is strong and tap-friendly. Go tighter (90%+) and the tap can break; go looser (50%) and the bolt strips out.
+Walkthrough: want to cut a 1/2-13 thread? Drill 0.423, tap, then check it with 3-wire mics. The calcs below do all the math — you just read the print and type the numbers.`,
     link: { label: 'Open Tap Drill / 3-Wire calcs →', screen: 'screen-calc', focus: 'tap-major' },
   },
   'gdt-basics': {

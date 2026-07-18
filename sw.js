@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mgp-pro-2026.07.17.11';
+const CACHE_VERSION = 'mgp-pro-2026.07.17.12';
 const ASSETS = ['./', './index.html', './css/style.css', './js/app.js', './manifest.json', './icons/icon.svg'];
 
 self.addEventListener('install', e => {
