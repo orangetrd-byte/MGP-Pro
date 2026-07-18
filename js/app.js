@@ -1,5 +1,5 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.05';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.06';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
@@ -43,6 +43,16 @@ const MATERIALS = {
   'ts-a2': { name: 'Tool Steel A2', sfm: [40, 150], vc: [12, 45] },
   'ts-d2': { name: 'Tool Steel D2', sfm: [35, 130], vc: [10, 40] },
   'ts-o1': { name: 'Tool Steel O1', sfm: [50, 175], vc: [15, 53] },
+  // Super alloys (nickel / cobalt) — cut SLOW; verify per setup, use sharp tools, rigid setup
+  'inconel-718': { name: 'Inconel 718', sfm: [25, 70], vc: [8, 20] },
+  'inconel-625': { name: 'Inconel 625', sfm: [20, 65], vc: [6, 20] },
+  'inconel-x750': { name: 'Inconel X750', sfm: [20, 60], vc: [6, 18] },
+  'hastelloy-x': { name: 'Hastelloy X', sfm: [25, 80], vc: [8, 24] },
+  'hastelloy-c276': { name: 'Hastelloy C276', sfm: [20, 70], vc: [6, 20] },
+  'waspaloy': { name: 'Waspaloy', sfm: [15, 50], vc: [5, 15] },
+  'rene-41': { name: 'Rene 41', sfm: [12, 45], vc: [4, 14] },
+  'monel-400': { name: 'Monel 400', sfm: [40, 130], vc: [12, 40] },
+  'haynes-188': { name: 'Haynes 188 (Co)', sfm: [20, 70], vc: [6, 20] },
   // Plastics
   'plastic-delrin': { name: 'Delrin (acetal)', sfm: [300, 1000], vc: [90, 300] },
   'plastic-uptfe': { name: 'PTFE (Teflon)', sfm: [200, 800], vc: [60, 245] },
@@ -81,6 +91,10 @@ const DENSITY = {
   'copper-c110': 0.324, 'copper-beryllium': 0.300,
   'ti-6al4v': 0.160, 'ti-cp': 0.163,
   'ts-a2': 0.284, 'ts-d2': 0.286, 'ts-o1': 0.283,
+  // Super alloys (lb/in³) — density for weight calc
+  'inconel-718': 0.296, 'inconel-625': 0.305, 'inconel-x750': 0.298,
+  'hastelloy-x': 0.297, 'hastelloy-c276': 0.321, 'waspaloy': 0.291,
+  'rene-41': 0.298, 'monel-400': 0.319, 'haynes-188': 0.319,
   'plastic-delrin': 0.051, 'plastic-uptfe': 0.078, 'plastic-uhmw': 0.034,
 };
 
