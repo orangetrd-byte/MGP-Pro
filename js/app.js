@@ -1,5 +1,5 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.07';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.08';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
