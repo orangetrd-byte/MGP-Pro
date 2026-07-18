@@ -94,6 +94,73 @@
           <div class="result" id="tap-result"></div>
           <div class="safety">Rule of thumb: tap drill ≈ major − pitch. Adjust for material and desired thread %.</div>
         </div>
+
+        <!-- True Position -->
+        <div class="card">
+          <div class="card-title">🎯 True Position</div>
+          <div class="row">
+            <label>X deviation</label>
+            <input id="tp-xdev" type="number" inputmode="decimal" placeholder="0.002" />
+          </div>
+          <div class="row">
+            <label>Y deviation</label>
+            <input id="tp-ydev" type="number" inputmode="decimal" placeholder="0.001" />
+          </div>
+          <button class="btn-primary" id="calc-truepos-btn">Calculate</button>
+          <div class="result" id="truepos-result"></div>
+        </div>
+
+        <!-- Bolt Pattern -->
+        <div class="card">
+          <div class="card-title">🔵 Bolt / Hole Pattern</div>
+          <div class="row">
+            <label>Hole count</label>
+            <input id="bolt-n" type="number" inputmode="numeric" placeholder="5" />
+          </div>
+          <div class="row">
+            <label>Radius (PCD)</label>
+            <input id="bolt-r" type="number" inputmode="decimal" placeholder="1.500" />
+          </div>
+          <button class="btn-primary" id="calc-bolt-btn">Calculate</button>
+          <div class="result" id="bolt-result"></div>
+        </div>
+
+        <!-- Unit Conversion -->
+        <div class="card">
+          <div class="card-title">📐 Unit Conversion</div>
+          <div class="row">
+            <label>Value</label>
+            <input id="conv-val" type="number" inputmode="decimal" placeholder="25.4" />
+          </div>
+          <div class="row">
+            <label>From</label>
+            <select id="conv-from">
+              <option value="mm">mm</option>
+              <option value="in">inch</option>
+              <option value="cm">cm</option>
+              <option value="mil">mil (0.001")</option>
+              <option value="um">micron</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>To</label>
+            <select id="conv-to">
+              <option value="in">inch</option>
+              <option value="mm">mm</option>
+              <option value="cm">cm</option>
+              <option value="mil">mil (0.001")</option>
+              <option value="um">micron</option>
+            </select>
+          </div>
+          <button class="btn-primary" id="calc-conv-btn">Calculate</button>
+          <div class="result" id="conv-result"></div>
+        </div>
+
+        <!-- GD&T reference -->
+        <div class="card">
+          <div class="card-title">📏 GD&amp;T Quick Reference</div>
+          <div class="gdt-list" id="gdt-list"></div>
+        </div>
       </section>
 
       <!-- LEARN (placeholder) -->
