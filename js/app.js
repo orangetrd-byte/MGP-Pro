@@ -1,5 +1,5 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.03';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.04';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
@@ -124,6 +124,56 @@ const SELFTEST = {
 
 const state = { unit: 'inch' };
 
+// Foundational lessons — plain-language, why-before-how. Tied to Calc tools.
+const LESSONS = {
+  'feeds-speeds': {
+    title: 'Speeds & Feeds — Why They Matter',
+    why: 'Spin too slow and you rub the tool (work-hardening, BUE). Too fast and you burn the insert or throw a cutter. The number is a starting point, not law — your ears and chips tell you the truth.',
+    body: 'SFM (surface feet per minute) is how fast the cutting edge travels through the material. RPM is what the spindle shows; it depends on SFM AND diameter (smaller diameter = higher RPM for the same SFM). Feed is how fast the part moves into the cutter — feed per rev (lathe) or per tooth (mill).',
+    link: { label: 'Open Speeds & Feeds calc →', screen: 'screen-calc', focus: 'dia-input' },
+  },
+  'thread-terms': {
+    title: 'Threads — Major, Pitch, Minor',
+    why: 'You tap a hole and the bolt won\'t go in, or it strips. That\'s a thread-percentage problem, not bad luck. Know the three diameters and you can pick the right drill instead of guessing.',
+    body: 'Major = outside diameter. Pitch = distance between threads (1/TPI for inch). Minor = the root. Tap-drill size sets how much thread you actually engage — ~75% is the shop standard; tighter risks breakage, looser risks stripping.',
+    link: { label: 'Open Tap Drill / 3-Wire calcs →', screen: 'screen-calc', focus: 'tap-major' },
+  },
+  'gdt-basics': {
+    title: 'GD&T — Datums Are Your Anchor',
+    why: 'A print says "position tolerance 0.005" but to what? Datums. Without them the number is meaningless. Reading GD&T is how you know if a part is actually good.',
+    body: 'A datum is a real surface (or axis) the part is measured from — marked with a boxed letter (A, B, C). Position, perpendicularity, and runout all reference datums. Flatness and roundness are "form" controls — no datum needed.',
+    link: { label: 'Open GD&T reference →', screen: 'screen-calc', focus: 'gdt-list' },
+  },
+  'tool-wear': {
+    title: 'Tool Wear — Read the Failure',
+    why: 'A tool fails and you grab an identical one and it fails again. The wear pattern tells you WHY — speed, grade, or coolant. Read it and you fix the cause, not the symptom.',
+    body: 'Cratering = too fast / wrong grade. Built-up edge = too slow / gummy material. Chipping = brittle grade or thermal shock from on/off coolant. Match the symptom to the cause in the Tool Wear reference.',
+    link: { label: 'Open Tool Wear reference →', screen: 'screen-calc', focus: 'wear-list' },
+  },
+  'measuring': {
+    title: 'Measuring — Trust the Tool',
+    why: 'You "eyeball" a 0.002 dimension and ship a bad part. A micrometer reads to 0.0001 in; a caliper to 0.001. Use the right one and verify it\'s calibrated.',
+    body: 'Caliper: outside/inside/depth, reads to ~0.001 in. Micrometer: more precise, single range. Bore gauge or ID mic for hole diameters. Clean the part and the anvils — chips lie.',
+    link: { label: 'Open Unit Converter →', screen: 'screen-calc', focus: 'conv-val' },
+  },
+  'safety': {
+    title: 'Safety — The Non-Negotiable',
+    why: 'A lathe doesn\'t care. Long hair, loose sleeves, reaching in while it spins — that\'s how people lose fingers. The machine is dumb; you are the safety system.',
+    body: 'Tie back hair, no gloves near rotating spindles (they get caught), use a brush not your hand to clear chips. Single-block + dry run new code before letting it run. Guard up, door closed.',
+    link: { label: 'Open Self-Test (Safety) →', screen: 'screen-calc', focus: 'selftest-cat' },
+  },
+};
+
+// Learner roadmap (generic — not personal data). Tied to lessons where possible.
+const ROADMAP = [
+  { id: 'r1', text: 'Understand speeds & feeds before touching a machine', lesson: 'feeds-speeds' },
+  { id: 'r2', text: 'Read a thread callout (major / TPI / class)', lesson: 'thread-terms' },
+  { id: 'r3', text: 'Decode GD&T datums on a print', lesson: 'gdt-basics' },
+  { id: 'r4', text: 'Recognize tool-wear patterns and their causes', lesson: 'tool-wear' },
+  { id: 'r5', text: 'Pick the right measuring tool and use it', lesson: 'measuring' },
+  { id: 'r6', text: 'Run a new program safely (single-block + dry run)', lesson: 'safety' },
+];
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('build-tag').textContent = APP_BUILD;
 
@@ -176,6 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderGdt();
   renderWear();
   popWeightMats();
+  renderLessons();
+  renderRoadmap();
+  loadProgress();
 
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -383,4 +436,85 @@ function startSelfTest() {
       if (scoreEl) scoreEl.innerHTML = `Score: <b>${score}</b> / ${qs.length}`;
     });
   });
+}
+
+// ─── Phase 4: Learn + My Path ───────────────────────────
+function renderLessons() {
+  const el = document.getElementById('lesson-list');
+  if (!el) return;
+  el.innerHTML = Object.entries(LESSONS).map(([key, l]) =>
+    `<div class="lesson" data-lesson="${key}">
+       <div class="lesson-title">${l.title}</div>
+       <div class="lesson-why"><b>Why:</b> ${l.why}</div>
+       <div class="lesson-body">${l.body}</div>
+       <button class="lesson-link" data-screen="${l.link.screen}" data-focus="${l.link.focus}">${l.link.label}</button>
+     </div>`
+  ).join('');
+  el.querySelectorAll('.lesson-link').forEach(btn => {
+    btn.addEventListener('click', () => {
+      showScreen(btn.dataset.screen);
+      const f = document.getElementById(btn.dataset.focus);
+      if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus({ preventScroll: true }); }
+    });
+  });
+}
+
+function renderRoadmap() {
+  const el = document.getElementById('roadmap-list');
+  if (!el) return;
+  const done = loadProgress();
+  el.innerHTML = ROADMAP.map(r => {
+    const checked = done[r.id] ? 'checked' : '';
+    const lessonLink = r.lesson ? ` <button class="rm-link" data-lesson="${r.lesson}">Learn →</button>` : '';
+    return `<label class="rm-item">
+       <input type="checkbox" class="rm-check" data-id="${r.id}" ${checked} />
+       <span class="rm-text">${r.text}</span>${lessonLink}
+     </label>`;
+  }).join('');
+  el.querySelectorAll('.rm-check').forEach(c => {
+    c.addEventListener('change', () => {
+      const done = loadProgress();
+      done[c.dataset.id] = c.checked;
+      saveProgress(done);
+    });
+  });
+  el.querySelectorAll('.rm-link').forEach(b => {
+    b.addEventListener('click', () => {
+      showScreen('screen-learn');
+      const node = document.querySelector(`.lesson[data-lesson="${b.dataset.lesson}"]`);
+      if (node) node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+  updateRoadmapCount();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === id));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById(id);
+  if (t) t.classList.add('active');
+}
+
+function updateRoadmapCount() {
+  const el = document.getElementById('roadmap-list');
+  if (!el) return;
+  const done = loadProgress();
+  const total = ROADMAP.length;
+  const got = ROADMAP.filter(r => done[r.id]).length;
+  let counter = el.parentElement.querySelector('.rm-count');
+  if (!counter) {
+    counter = document.createElement('div');
+    counter.className = 'rm-count';
+    el.parentElement.insertBefore(counter, el);
+  }
+  counter.textContent = `${got} / ${total} done`;
+}
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem('mgp-pro-path') || '{}'); }
+  catch (e) { return {}; }
+}
+function saveProgress(obj) {
+  localStorage.setItem('mgp-pro-path', JSON.stringify(obj));
+  updateRoadmapCount();
 }
