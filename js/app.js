@@ -1,5 +1,5 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.04';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.05';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
@@ -229,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderLessons();
   renderRoadmap();
   loadProgress();
+  initFloor();
 
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -517,4 +518,152 @@ function loadProgress() {
 function saveProgress(obj) {
   localStorage.setItem('mgp-pro-path', JSON.stringify(obj));
   updateRoadmapCount();
+}
+
+// ─── Phase 5: Floor (job notes + lathe calc + draft G-code) ──
+const FLOOR_KEY = 'mgp-pro-floor';
+const FLOOR_FIELDS = ['job-part','job-mat','job-op','job-machine','job-toolnotes','job-setupnotes',
+  'setup-offset','setup-stockdia','setup-chuck','setup-stickout','setup-coolant','setup-insp',
+  'touch-dia','target-dia','face-z','plunge-depth','z-dir','g-tool','g-speed','g-feed','g-comment'];
+
+let floorMode = 'od';
+let lastMove = null;
+
+const fmt3 = v => Number.isFinite(v) ? Number(v).toFixed(3).replace(/^-0\.000$/, '0.000') : '--';
+
+function floorNum(id) {
+  const raw = document.getElementById(id).value.trim();
+  if (!raw) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
+function initFloor() {
+  // restore
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(FLOOR_KEY) || '{}'); } catch (e) {}
+  FLOOR_FIELDS.forEach(id => { if (saved[id] != null) document.getElementById(id).value = saved[id]; });
+  if (saved.floorMode) setFloorMode(saved.floorMode, false);
+  if (saved.gcode) document.getElementById('gcode-out').textContent = saved.gcode;
+
+  // auto-save on input
+  FLOOR_FIELDS.forEach(id => {
+    document.getElementById(id).addEventListener('input', () => { saveFloor(); });
+    document.getElementById(id).addEventListener('change', () => { saveFloor(); });
+  });
+
+  // mode seg
+  document.querySelectorAll('#floor-mode-seg .seg-btn').forEach(b => {
+    b.addEventListener('click', () => setFloorMode(b.dataset.mode, true));
+  });
+
+  document.getElementById('floor-calc-btn').addEventListener('click', calcMove);
+  document.getElementById('g-build-btn').addEventListener('click', buildGcode);
+  document.getElementById('floor-reset-btn').addEventListener('click', () => {
+    if (!confirm('Clear all Floor job data on this device?')) return;
+    localStorage.removeItem(FLOOR_KEY);
+    FLOOR_FIELDS.forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('gcode-out').textContent = 'Calculate a move first.';
+    document.getElementById('floor-result').innerHTML = '';
+    drawPlot(null);
+    setFloorMode('od', false);
+  });
+}
+
+function setFloorMode(mode, save) {
+  floorMode = mode;
+  document.querySelectorAll('#floor-mode-seg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  if (save) saveFloor();
+}
+
+function saveFloor() {
+  const data = { floorMode };
+  FLOOR_FIELDS.forEach(id => { data[id] = document.getElementById(id).value; });
+  const out = document.getElementById('gcode-out').textContent;
+  if (out && out !== 'Calculate a move first.') data.gcode = out;
+  localStorage.setItem(FLOOR_KEY, JSON.stringify(data));
+}
+
+function calcMove() {
+  const touch = floorNum('touch-dia'), target = floorNum('target-dia');
+  const face = floorNum('face-z') ?? 0, depth = floorNum('plunge-depth') ?? 0;
+  if (touch == null || target == null) {
+    document.getElementById('floor-result').innerHTML = 'Enter touch-off and target diameters.';
+    drawPlot(null); return;
+  }
+  const zDir = document.getElementById('z-dir').value;
+  const zTarget = zDir === 'minus' ? face - depth : face + depth;
+  const radialTravel = Math.abs(touch - target) / 2;
+  const diaChange = Math.abs(touch - target);
+  lastMove = { mode: floorMode, touch, target, face, depth, zTarget, radialTravel, diaChange };
+  document.getElementById('floor-result').innerHTML =
+    `Move to <b>X${fmt3(target)} Z${fmt3(zTarget)}</b><br>` +
+    `Radial travel: <b>${fmt3(radialTravel)}</b> (dia change ${fmt3(diaChange)})<br>` +
+    `Mode: ${floorMode === 'od' ? 'OD / facing' : 'ID / boring'}`;
+  buildGcode();
+}
+
+function buildGcode() {
+  if (!lastMove) return;
+  const m = lastMove;
+  const safeX = Math.max(m.touch, m.target) + 0.100;
+  const safeZ = m.zTarget < m.face ? m.face + 0.100 : m.face - 0.100;
+  const feed = document.getElementById('g-feed').value.trim() || '0.004';
+  const toolCall = document.getElementById('g-tool').value.trim();
+  const speed = document.getElementById('g-speed').value.trim();
+  const offset = document.getElementById('setup-offset').value.trim();
+  const comment = document.getElementById('g-comment').value.trim() || document.getElementById('job-op').value.trim() || 'MANUAL LATHE MOVE';
+  const lines = [
+    '%',
+    `(${comment})`,
+    '(DRAFT — VERIFY BEFORE RUNNING)',
+    '(check post, offsets, clearance, spindle, feed, X dia mode)',
+    'G18 G40 G80 G99',
+    offset || '',
+    toolCall,
+    speed,
+    `G00 X${fmt3(safeX)} Z${fmt3(safeZ)}`,
+    `G01 Z${fmt3(m.zTarget)} F${feed}`,
+    `G01 X${fmt3(m.target)} F${feed}`,
+    `G00 X${fmt3(safeX)}`,
+    `G00 Z${fmt3(safeZ)}`,
+    `(TARGET X${fmt3(m.target)} Z${fmt3(m.zTarget)})`,
+    `(RADIAL TRAVEL ${fmt3(m.radialTravel)})`,
+    '%'
+  ].filter(Boolean);
+  const out = lines.join('\n');
+  document.getElementById('gcode-out').textContent = out;
+  drawPlot({ safeX, safeZ, targetX: m.target, targetZ: m.zTarget, faceZ: m.face, touchX: m.touch });
+  saveFloor();
+}
+
+function drawPlot(move) {
+  const svg = document.getElementById('gcode-plot');
+  if (!svg) return;
+  if (!move) { svg.innerHTML = '<text x="320" y="140" text-anchor="middle" fill="#8AA0AE" font-size="14">No move calculated yet.</text>'; return; }
+  const pad = 42, width = 640, height = 280;
+  const xs = [move.safeX, move.targetX, move.touchX], zs = [move.safeZ, move.targetZ, move.faceZ];
+  let minX = Math.min(...xs), maxX = Math.max(...xs), minZ = Math.min(...zs), maxZ = Math.max(...zs);
+  if (maxX - minX < 0.001) { maxX += 1; minX -= 1; }
+  if (maxZ - minZ < 0.001) { maxZ += 0.25; minZ -= 0.25; }
+  const mX = (maxX - minX) * 0.12, mZ = (maxZ - minZ) * 0.20;
+  minX -= mX; maxX += mX; minZ -= mZ; maxZ += mZ;
+  const px = z => pad + (z - minZ) / (maxZ - minZ) * (width - pad * 2);
+  const py = x => height - pad - (x - minX) / (maxX - minX) * (height - pad * 2);
+  const p1 = [px(move.safeZ), py(move.safeX)];
+  const p2 = [px(move.targetZ), py(move.safeX)];
+  const p3 = [px(move.targetZ), py(move.targetX)];
+  svg.innerHTML =
+    `<line x1="${pad}" y1="${height-pad}" x2="${width-pad}" y2="${height-pad}" stroke="#2A3F4D"/>` +
+    `<line x1="${pad}" y1="${pad}" x2="${pad}" y2="${height-pad}" stroke="#2A3F4D"/>` +
+    `<text x="${width/2-20}" y="${height-10}" fill="#8AA0AE" font-size="13">Z axis</text>` +
+    `<text x="8" y="${pad-12}" fill="#8AA0AE" font-size="13">X diameter</text>` +
+    `<path d="M ${p1[0]} ${p1[1]} L ${p2[0]} ${p2[1]} L ${p3[0]} ${p3[1]}" stroke="#E07B2E" stroke-width="2" fill="none"/>` +
+    `<path d="M ${p3[0]} ${p3[1]} L ${p1[0]} ${p1[1]}" stroke="#8AA0AE" stroke-width="2" stroke-dasharray="6 4" fill="none"/>` +
+    `<circle cx="${p1[0]}" cy="${p1[1]}" r="6" fill="#2DB5A0"/>` +
+    `<text x="${p1[0]+8}" y="${p1[1]-8}" fill="#8AA0AE" font-size="12">rapid X${fmt3(move.safeX)} Z${fmt3(move.safeZ)}</text>` +
+    `<circle cx="${p2[0]}" cy="${p2[1]}" r="5" fill="#E07B2E"/>` +
+    `<text x="${p2[0]+8}" y="${p2[1]+16}" fill="#8AA0AE" font-size="12">feed Z${fmt3(move.targetZ)}</text>` +
+    `<circle cx="${p3[0]}" cy="${p3[1]}" r="6" fill="#B23A2E"/>` +
+    `<text x="${p3[0]+8}" y="${p3[1]-8}" fill="#8AA0AE" font-size="12">target X${fmt3(move.targetX)} Z${fmt3(move.targetZ)}</text>`;
 }

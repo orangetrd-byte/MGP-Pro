@@ -269,10 +269,134 @@
         </div>
       </section>
 
-      <!-- FLOOR (placeholder) -->
+      <!-- FLOOR -->
       <section class="screen" id="screen-floor">
         <div class="section-label">Floor</div>
-        <div class="card coming">Job notes, setup reference, lathe move calc, draft G-code. Porting from CNC-Work-Helper in a later phase.</div>
+
+        <div class="card">
+          <div class="card-title">📋 Job Notes</div>
+          <div class="row col">
+            <label>Part number</label>
+            <input id="job-part" type="text" placeholder="e.g. BRKT-104" />
+          </div>
+          <div class="row col">
+            <label>Material</label>
+            <input id="job-mat" type="text" placeholder="e.g. 6061 AL" />
+          </div>
+          <div class="row col">
+            <label>Operation</label>
+            <input id="job-op" type="text" placeholder="e.g. OD turn + face" />
+          </div>
+          <div class="row col">
+            <label>Machine</label>
+            <input id="job-machine" type="text" placeholder="e.g. Johnford HT 60" />
+          </div>
+          <div class="row col">
+            <label>Tool notes</label>
+            <input id="job-toolnotes" type="text" placeholder="insert, radius, etc." />
+          </div>
+          <div class="row col">
+            <label>Setup notes</label>
+            <input id="job-setupnotes" type="text" placeholder="fixturing, order, gotchas" />
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">⚙ Setup Reference</div>
+          <div class="row col">
+            <label>Work offset</label>
+            <input id="setup-offset" type="text" placeholder="G54" />
+          </div>
+          <div class="row col">
+            <label>Stock diameter</label>
+            <input id="setup-stockdia" type="number" inputmode="decimal" placeholder="2.500" />
+          </div>
+          <div class="row col">
+            <label>Chuck / jaw</label>
+            <input id="setup-chuck" type="text" placeholder="3-jaw, soft jaws" />
+          </div>
+          <div class="row col">
+            <label>Stickout</label>
+            <input id="setup-stickout" type="text" placeholder="2.0 in" />
+          </div>
+          <div class="row col">
+            <label>Coolant</label>
+            <input id="setup-coolant" type="text" placeholder="flood / thru-spindle" />
+          </div>
+          <div class="row col">
+            <label>Inspection notes</label>
+            <input id="setup-insp" type="text" placeholder="critical dims, how to check" />
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📐 Lathe Move Calculator</div>
+          <div class="row">
+            <label>Mode</label>
+            <div class="seg" id="floor-mode-seg">
+              <button data-mode="od" class="seg-btn active">OD / face</button>
+              <button data-mode="id" class="seg-btn">ID / bore</button>
+            </div>
+          </div>
+          <div class="row col">
+            <label>Touch-off X diameter</label>
+            <input id="touch-dia" type="number" inputmode="decimal" placeholder="2.500" />
+          </div>
+          <div class="row col">
+            <label>Target X diameter</label>
+            <input id="target-dia" type="number" inputmode="decimal" placeholder="2.000" />
+          </div>
+          <div class="row col">
+            <label>Face Z (0 = face)</label>
+            <input id="face-z" type="number" inputmode="decimal" placeholder="0.000" />
+          </div>
+          <div class="row col">
+            <label>Plunge depth (Z)</label>
+            <input id="plunge-depth" type="number" inputmode="decimal" placeholder="0.500" />
+          </div>
+          <div class="row">
+            <label>Z direction</label>
+            <select id="z-dir">
+              <option value="minus">Minus (−Z, into part)</option>
+              <option value="plus">Plus (+Z, away)</option>
+            </select>
+          </div>
+          <button class="btn-primary" id="floor-calc-btn">Calculate Move</button>
+          <div class="result" id="floor-result"></div>
+          <div class="safety">Draft aid only. Verify X diameter mode, offsets, clearance, spindle direction, and collision before running.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📜 Draft G-Code</div>
+          <div class="row col">
+            <label>Tool call (T/M)</label>
+            <input id="g-tool" type="text" placeholder="T0101" />
+          </div>
+          <div class="row col">
+            <label>Speed (S/M)</label>
+            <input id="g-speed" type="text" placeholder="S800 M03" />
+          </div>
+          <div class="row col">
+            <label>Feed (F)</label>
+            <input id="g-feed" type="text" placeholder="0.004" />
+          </div>
+          <div class="row col">
+            <label>Comment</label>
+            <input id="g-comment" type="text" placeholder="OD turn to 2.000" />
+          </div>
+          <button class="btn-primary" id="g-build-btn">Generate</button>
+          <pre class="gcode-out" id="gcode-out">Calculate a move first.</pre>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 Toolpath Plot</div>
+          <svg class="plot" id="gcode-plot" viewBox="0 0 640 280"></svg>
+        </div>
+
+        <div class="card">
+          <button class="btn-primary" id="floor-reset-btn" style="background:var(--c-surface2);color:var(--c-text);border:1px solid var(--c-border)">Clear Job</button>
+          <div class="safety">All data stays on this device (localStorage). No upload.</div>
+        </div>
       </section>
 
       <!-- MY PATH -->
