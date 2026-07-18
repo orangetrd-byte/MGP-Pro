@@ -1,62 +1,62 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.06';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.07';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
 const MATERIALS = {
   // Aluminum
-  'aluminum-1100': { name: 'Aluminum 1100 (pure)', sfm: [300, 900], vc: [90, 275] },
-  'aluminum-2011': { name: 'Aluminum 2011 (free-cut)', sfm: [300, 1000], vc: [90, 300] },
-  'aluminum-2024': { name: 'Aluminum 2024', sfm: [300, 750], vc: [90, 230] },
-  'aluminum-6061': { name: 'Aluminum 6061', sfm: [300, 1000], vc: [90, 300] },
-  'aluminum-7075': { name: 'Aluminum 7075', sfm: [200, 750], vc: [60, 230] },
-  'aluminum-cast': { name: 'Aluminum Cast', sfm: [250, 700], vc: [75, 215] },
+  'aluminum-1100': { name: 'Aluminum 1100 (pure)', sfm: [300, 900], vc: [90, 275], note: 'Pure AL — easy to cut, but gummy and builds heat. Use sharp tools, good coolant.' },
+  'aluminum-2011': { name: 'Aluminum 2011 (free-cut)', sfm: [300, 1000], vc: [90, 300], note: 'Free-machining AL — best chip control of the aluminums. Great for screw machine work.' },
+  'aluminum-2024': { name: 'Aluminum 2024', sfm: [300, 750], vc: [90, 230], note: 'Stronger AL, more "sticky" than 2011. Watch built-up edge; keep carbide sharp.' },
+  'aluminum-6061': { name: 'Aluminum 6061', sfm: [300, 1000], vc: [90, 300], note: 'The general-purpose AL. Cuts freely; watch heat at high SFM, use coolant.' },
+  'aluminum-7075': { name: 'Aluminum 7075', sfm: [200, 750], vc: [60, 230], note: 'High-strength AL. Harder on tools than 6061; ease off SFM if tools load up.' },
+  'aluminum-cast': { name: 'Aluminum Cast', sfm: [250, 700], vc: [75, 215], note: 'Casting skin and porosity vary. Watch for hard spots and inclusions.' },
   // Steel - mild / low carbon
-  'steel-1018': { name: 'Mild Steel 1018', sfm: [100, 300], vc: [30, 90] },
-  'steel-1020': { name: 'Mild Steel 1020', sfm: [100, 325], vc: [30, 100] },
-  'steel-1045': { name: 'Medium Carbon 1045', sfm: [90, 275], vc: [28, 84] },
-  'steel-1144': { name: 'Stressproof 1144', sfm: [100, 325], vc: [30, 100] },
-  'steel-12l14': { name: 'Free-Cut 12L14', sfm: [150, 400], vc: [45, 120] },
-  'steel-4140': { name: 'Alloy 4140', sfm: [80, 250], vc: [25, 75] },
-  'steel-4340': { name: 'Alloy 4340', sfm: [70, 225], vc: [20, 70] },
-  'steel-a36': { name: 'Structural A36', sfm: [100, 300], vc: [30, 90] },
+  'steel-1018': { name: 'Mild Steel 1018', sfm: [100, 300], vc: [30, 90], note: 'Easy low-carbon steel. Forgiving — good for learning speeds/feeds.' },
+  'steel-1020': { name: 'Mild Steel 1020', sfm: [100, 325], vc: [30, 100], note: 'Low-carbon, machines clean. Watch for stringy chips at high feed.' },
+  'steel-1045': { name: 'Medium Carbon 1045', sfm: [90, 275], vc: [28, 84], note: 'Medium carbon — tougher than 1018. Needs more speed control near shoulders.' },
+  'steel-1144': { name: 'Stressproof 1144', sfm: [100, 325], vc: [30, 100], note: 'Resulfurized — free-machining, short chips. Great for shafts.' },
+  'steel-12l14': { name: 'Free-Cut 12L14', sfm: [150, 400], vc: [45, 120], note: 'Best machinability of the steels (lead + sulfur). Short chips, smooth finish.' },
+  'steel-4140': { name: 'Alloy 4140', sfm: [80, 250], vc: [25, 75], note: 'Hardened-capable alloy. Tough — keep tools rigid, watch heat at the cut.' },
+  'steel-4340': { name: 'Alloy 4340', sfm: [70, 225], vc: [20, 70], note: 'High-strength alloy, work-hardens. Drop SFM if it loads; avoid dwelling.' },
+  'steel-a36': { name: 'Structural A36', sfm: [100, 300], vc: [30, 90], note: 'Structural mild steel. Consistent and easy — same ballpark as 1018.' },
   // Stainless
-  'ss-303': { name: 'Stainless 303 (free-mach)', sfm: [90, 350], vc: [27, 105] },
-  'ss-304': { name: 'Stainless 304', sfm: [50, 200], vc: [15, 60] },
-  'ss-316': { name: 'Stainless 316', sfm: [50, 180], vc: [15, 55] },
-  'ss-17-4ph': { name: 'Stainless 17-4PH', sfm: [50, 175], vc: [15, 53] },
-  'ss-440c': { name: 'Stainless 440C', sfm: [40, 150], vc: [12, 45] },
+  'ss-303': { name: 'Stainless 303 (free-mach)', sfm: [90, 350], vc: [27, 105], note: 'Free-machining stainless — the easy one. Still work-hardens, keep cutting.' },
+  'ss-304': { name: 'Stainless 304', sfm: [50, 200], vc: [15, 60], note: 'Work-hardens fast. Keep feed up so you cut under the skin, never rub.' },
+  'ss-316': { name: 'Stainless 316', sfm: [50, 180], vc: [15, 55], note: 'More alloy than 304 — tougher, gummy. Rigid setup, sharp carbide, positive rake.' },
+  'ss-17-4ph': { name: 'Stainless 17-4PH', sfm: [50, 175], vc: [15, 53], note: 'Precipitation-hardening — hard when aged. Cut in soft condition if you can.' },
+  'ss-440c': { name: 'Stainless 440C', sfm: [40, 150], vc: [12, 45], note: 'Hardenable stainless, abrasive. Cuts like a hard steel — ease SFM, watch wear.' },
   // Cast iron
-  'ci-gray': { name: 'Gray Cast Iron', sfm: [75, 225], vc: [25, 70] },
-  'ci-ductile': { name: 'Ductile Iron', sfm: [75, 250], vc: [25, 75] },
+  'ci-gray': { name: 'Gray Cast Iron', sfm: [75, 225], vc: [25, 70], note: 'Brittle, graphitic — machines dry usually. Wear a mask; dusty, no long string chips.' },
+  'ci-ductile': { name: 'Ductile Iron', sfm: [75, 250], vc: [25, 75], note: 'Tougher than gray iron, can get gummy. Similar speeds; watch the "skin".' },
   // Brass / bronze
-  'brass-360': { name: 'Free-Cut Brass 360', sfm: [200, 400], vc: [60, 120] },
-  'brass-260': { name: 'Cartridge Brass 260', sfm: [150, 350], vc: [45, 105] },
-  'bronze-932': { name: 'Bearing Bronze 932', sfm: [150, 350], vc: [45, 105] },
+  'brass-360': { name: 'Free-Cut Brass 360', sfm: [200, 400], vc: [60, 120], note: 'Free-cutting brass — dream to machine. Watch for the part grabbing at high speed.' },
+  'brass-260': { name: 'Cartridge Brass 260', sfm: [150, 350], vc: [45, 105], note: 'Softer brass, more ductile. Watch for the part pulling in toward the tool.' },
+  'bronze-932': { name: 'Bearing Bronze 932', sfm: [150, 350], vc: [45, 105], note: 'Leaded bearing bronze — free cutting. Abrasive to tools over time.' },
   // Copper
-  'copper-c110': { name: 'Copper C110', sfm: [200, 500], vc: [60, 150] },
-  'copper-beryllium': { name: 'Copper Beryllium', sfm: [150, 350], vc: [45, 105] },
+  'copper-c110': { name: 'Copper C110', sfm: [200, 500], vc: [60, 150], note: 'Pure copper — soft and gummy, long stringy chips. Sharp tools, chip breaker help.' },
+  'copper-beryllium': { name: 'Copper Beryllium', sfm: [150, 350], vc: [45, 105], note: 'Hard, springy, abrasive. Machines like a tough bronze; mind the dust hazard.' },
   // Titanium
-  'ti-6al4v': { name: 'Titanium 6Al-4V', sfm: [40, 140], vc: [12, 40] },
-  'ti-cp': { name: 'Titanium CP (Grade 2)', sfm: [35, 130], vc: [10, 38] },
+  'ti-6al4v': { name: 'Titanium 6Al-4V', sfm: [40, 140], vc: [12, 40], note: 'Common Ti alloy. Work-hardens + holds heat at the edge. Low SFM, flood coolant, never dwell.' },
+  'ti-cp': { name: 'Titanium CP (Grade 2)', sfm: [35, 130], vc: [10, 38], note: 'Commercial-pure Ti — softer than 6Al-4V but same heat rules. Keep cutting, cool hard.' },
   // Tool steel
-  'ts-a2': { name: 'Tool Steel A2', sfm: [40, 150], vc: [12, 45] },
-  'ts-d2': { name: 'Tool Steel D2', sfm: [35, 130], vc: [10, 40] },
-  'ts-o1': { name: 'Tool Steel O1', sfm: [50, 175], vc: [15, 53] },
+  'ts-a2': { name: 'Tool Steel A2', sfm: [40, 150], vc: [12, 45], note: 'Air-hardening tool steel — abrasive, tough. Cut soft (annealed) if possible; watch wear.' },
+  'ts-d2': { name: 'Tool Steel D2', sfm: [35, 130], vc: [10, 40], note: 'High-carbon, very abrasive. Hard on tools — low SFM, CBN or ceramic for hard turning.' },
+  'ts-o1': { name: 'Tool Steel O1', sfm: [50, 175], vc: [15, 53], note: 'Oil-hardening tool steel — easier than D2/A2 but still tough. Rigid setup, sharp edge.' },
   // Super alloys (nickel / cobalt) — cut SLOW; verify per setup, use sharp tools, rigid setup
-  'inconel-718': { name: 'Inconel 718', sfm: [25, 70], vc: [8, 20] },
-  'inconel-625': { name: 'Inconel 625', sfm: [20, 65], vc: [6, 20] },
-  'inconel-x750': { name: 'Inconel X750', sfm: [20, 60], vc: [6, 18] },
-  'hastelloy-x': { name: 'Hastelloy X', sfm: [25, 80], vc: [8, 24] },
-  'hastelloy-c276': { name: 'Hastelloy C276', sfm: [20, 70], vc: [6, 20] },
-  'waspaloy': { name: 'Waspaloy', sfm: [15, 50], vc: [5, 15] },
-  'rene-41': { name: 'Rene 41', sfm: [12, 45], vc: [4, 14] },
-  'monel-400': { name: 'Monel 400', sfm: [40, 130], vc: [12, 40] },
-  'haynes-188': { name: 'Haynes 188 (Co)', sfm: [20, 70], vc: [6, 20] },
+  'inconel-718': { name: 'Inconel 718', sfm: [25, 70], vc: [8, 20], note: 'Nickel superalloy. Work-hardens, holds heat at the edge. LOW SFM, rigid, sharp carbide, flood coolant, never dwell.' },
+  'inconel-625': { name: 'Inconel 625', sfm: [20, 65], vc: [6, 20], note: 'Tougher than 718. Same rules — low SFM, positive rake, keep cutting, cool hard.' },
+  'inconel-x750': { name: 'Inconel X750', sfm: [20, 60], vc: [6, 18], note: 'Age-hardening Ni alloy. Cut in solution-treated state if you can; low SFM, rigid.' },
+  'hastelloy-x': { name: 'Hastelloy X', sfm: [25, 80], vc: [8, 24], note: 'Ni-Cr-Mo, a bit more free-cutting than Inconel. Still low SFM, watch work-hardening.' },
+  'hastelloy-c276': { name: 'Hastelloy C276', sfm: [20, 70], vc: [6, 20], note: 'Corrosion-grade Ni-Mo-Cr. Tough and gummy — low SFM, sharp tools, never rub.' },
+  'waspaloy': { name: 'Waspaloy (AMS5707)', sfm: [15, 50], vc: [5, 15], note: 'Age-hardenable Ni-Co superalloy (AMS5707). Among the hardest to cut — very low SFM, rigid, fresh edges.' },
+  'rene-41': { name: 'Rene 41', sfm: [12, 45], vc: [4, 14], note: 'High-temp Ni superalloy, very work-hardenable. Lowest SFM of the group; flood cool, no dwell.' },
+  'monel-400': { name: 'Monel 400', sfm: [40, 130], vc: [12, 40], note: 'Ni-Cu alloy — gummy and work-hardens but not as brutal as Inconel. Keep feed up, sharp tools.' },
+  'haynes-188': { name: 'Haynes 188 (Co)', sfm: [20, 70], vc: [6, 20], note: 'Cobalt superalloy — keeps strength hot, work-hardens. Low SFM, rigid, flood coolant.' },
   // Plastics
-  'plastic-delrin': { name: 'Delrin (acetal)', sfm: [300, 1000], vc: [90, 300] },
-  'plastic-uptfe': { name: 'PTFE (Teflon)', sfm: [200, 800], vc: [60, 245] },
-  'plastic-uhmw': { name: 'UHMW', sfm: [250, 900], vc: [75, 275] },
+  'plastic-delrin': { name: 'Delrin (acetal)', sfm: [300, 1000], vc: [90, 300], note: 'Easy, chips clean. Watch melting at the edge — keep speed up, light feed, sharp tool.' },
+  'plastic-uptfe': { name: 'PTFE (Teflon)', sfm: [200, 800], vc: [60, 245], note: 'Soft, gummy, melts fast. Very sharp tool, low feed pressure, watch heat.' },
+  'plastic-uhmw': { name: 'UHMW', sfm: [250, 900], vc: [75, 275], note: 'Springy and gummy. Clamp well (it creeps), sharp tool, avoid heat buildup.' },
 };
 
 // GD&T descriptors (the #1 app's most-praised reference). Plain-language, shop-floor.
@@ -192,6 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('build-tag').textContent = APP_BUILD;
 
   const matSel = document.getElementById('mat-select');
+  const showMatNote = () => {
+    const n = document.getElementById('mat-note');
+    if (n) n.textContent = MATERIALS[matSel.value]?.note || '';
+  };
   Object.entries(MATERIALS).forEach(([key, m]) => {
     const o = document.createElement('option');
     o.value = key; o.textContent = m.name;
@@ -202,8 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const high = state.unit === 'inch' ? m.sfm[1] : m.vc[1];
     document.getElementById('sfm-input').placeholder = String(high);
   };
-  matSel.addEventListener('change', prefillSfm);
+  matSel.addEventListener('change', () => { prefillSfm(); showMatNote(); });
   prefillSfm();
+  showMatNote();
 
   document.querySelectorAll('#unit-seg .seg-btn').forEach(b => {
     b.addEventListener('click', () => {
@@ -359,6 +364,12 @@ function popWeightMats() {
     o.value = key; o.textContent = m.name;
     sel.appendChild(o);
   });
+  const showWtNote = () => {
+    const n = document.getElementById('wt-note');
+    if (n) n.textContent = MATERIALS[sel.value]?.note || '';
+  };
+  sel.addEventListener('change', showWtNote);
+  showWtNote();
 }
 
 // Hardness: HRC central; convert to others via common approximations.
