@@ -1,5 +1,5 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.02';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.03';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
@@ -69,6 +69,59 @@ const GDT = [
   { sym: 'Ⓕ', name: 'Datum Feature', desc: 'Physical surface used as a reference. Marked with a boxed letter.' },
 ];
 
+// Material density (lb/in³) for weight calc. Source: common engineering references.
+const DENSITY = {
+  'aluminum-1100': 0.098, 'aluminum-2011': 0.098, 'aluminum-2024': 0.100, 'aluminum-6061': 0.098,
+  'aluminum-7075': 0.101, 'aluminum-cast': 0.097,
+  'steel-1018': 0.284, 'steel-1020': 0.284, 'steel-1045': 0.284, 'steel-1144': 0.283, 'steel-12l14': 0.282,
+  'steel-4140': 0.284, 'steel-4340': 0.284, 'steel-a36': 0.284,
+  'ss-303': 0.290, 'ss-304': 0.290, 'ss-316': 0.290, 'ss-17-4ph': 0.282, 'ss-440c': 0.280,
+  'ci-gray': 0.260, 'ci-ductile': 0.257,
+  'brass-360': 0.307, 'brass-260': 0.308, 'bronze-932': 0.318,
+  'copper-c110': 0.324, 'copper-beryllium': 0.300,
+  'ti-6al4v': 0.160, 'ti-cp': 0.163,
+  'ts-a2': 0.284, 'ts-d2': 0.286, 'ts-o1': 0.283,
+  'plastic-delrin': 0.051, 'plastic-uptfe': 0.078, 'plastic-uhmw': 0.034,
+};
+
+// Tool wear quick reference — symptom -> likely cause. Shop-floor plain language.
+const WEAR = [
+  { sym: '🔪', name: 'Cratering', desc: 'Chemical/heat erosion on rake face. Too fast, wrong grade for material, or no coolant. Drop speed or change grade.' },
+  { sym: '🪒', name: 'Flank wear', desc: 'Uniform land on clearance face. Normal aging — but fast wear = too hard a material for the speed, or wrong coating.' },
+  { sym: '🧊', name: 'Built-up edge (BUE)', desc: 'Material welds to the tip. Too slow (rubbing), wrong rake, or gummy material. Raise speed, use sharp uncoated or polished grade.' },
+  { sym: '💥', name: 'Chipping', desc: 'Edge breaks out. Intermittent cut, too brittle a grade, or thermal shock (coolant hitting hot tool). Use tougher grade, steady feed.' },
+  { sym: '🌀', name: 'Thermal cracking', desc: 'Fine cracks from hot/cold cycling. Coolant hitting a hot tool. Use constant flood or run dry; avoid on/off coolant.' },
+  { sym: '📉', name: 'Premature failure', desc: 'Tool breaks way early. Feeds too light (rubbing) or too heavy (load). Verify feed per rev and rigidity.' },
+];
+
+// Machinist self-test — the #1 app's praised "brain check". 6 categories.
+const SELFTEST = {
+  gdt: [
+    { q: 'Position tolerance controls a feature relative to...', a: ['Datum(s)', 'The nearest hole', 'Tool diameter', 'Spindle RPM'], c: 0 },
+    { q: 'Which is a FORM control (no datum needed)?', a: ['Flatness', 'Perpendicularity', 'Position', 'Runout'], c: 0 },
+  ],
+  blueprint: [
+    { q: 'A dimension without a tolerance is...', a: ['Exact (no variation)', 'Controlled by general notes', 'Ignored', 'A basic dimension'], c: 1 },
+    { q: 'A section view shows...', a: ['Outside surface only', 'Interior as if cut', 'The title block', 'A 3D view'], c: 1 },
+  ],
+  measure: [
+    { q: 'A micrometer reads to...', a: ['0.001 in', '0.010 in', '0.0001 in', '0.1 in'], c: 0 },
+    { q: 'To measure a hole diameter you typically use a...', a: ['Caliper jaw', 'Bore gauge or ID mic', 'Tape measure', 'Depth gauge'], c: 1 },
+  ],
+  feeds: [
+    { q: 'RPM increases when diameter...', a: ['Increases', 'Decreases', 'Stays same', 'Is squared'], c: 1 },
+    { q: 'IPM feed = feed/rev × ...', a: ['Diameter', 'RPM', 'SFM', 'TPI'], c: 1 },
+  ],
+  materials: [
+    { q: 'Which machines fastest (typical SFM)?', a: ['Aluminum', 'Tool steel', 'Titanium', 'Inconel'], c: 0 },
+    { q: 'Stainless 304 is known for being...', a: ['Free-machining', 'Gummy / work-hardening', 'Very soft', 'Brittle'], c: 1 },
+  ],
+  safety: [
+    { q: 'Before running new G-code you should...', a: ['Single-block + dry run', 'Hit cycle start fast', 'Trust it', 'Leave the door open'], c: 0 },
+    { q: 'Long hair and loose sleeves near a lathe are...', a: ['Fine', 'A catch hazard — tie back/contain', 'Only risky at high RPM', 'Required'], c: 1 },
+  ],
+};
+
 const state = { unit: 'inch' };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,7 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('calc-truepos-btn').addEventListener('click', calcTruePos);
   document.getElementById('calc-bolt-btn').addEventListener('click', calcBolt);
   document.getElementById('calc-conv-btn').addEventListener('click', calcConv);
+  document.getElementById('calc-hard-btn').addEventListener('click', calcHard);
+  document.getElementById('calc-wt-btn').addEventListener('click', calcWeight);
+  document.getElementById('calc-tap2-btn').addEventListener('click', calcTapPct);
+  document.getElementById('calc-wire-btn').addEventListener('click', calcWire);
+  document.getElementById('selftest-start-btn').addEventListener('click', startSelfTest);
   renderGdt();
+  renderWear();
+  popWeightMats();
 
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -212,4 +272,115 @@ function renderGdt() {
   el.innerHTML = GDT.map(g =>
     `<div class="gdt-row"><span class="gdt-sym">${g.sym}</span><span class="gdt-name">${g.name}</span><span class="gdt-desc">${g.desc}</span></div>`
   ).join('');
+}
+
+// ─── Phase 3 calculators ────────────────────────────────
+function renderWear() {
+  const el = document.getElementById('wear-list');
+  if (!el) return;
+  el.innerHTML = WEAR.map(w =>
+    `<div class="gdt-row"><span class="gdt-sym">${w.sym}</span><span class="gdt-name">${w.name}</span><span class="gdt-desc">${w.desc}</span></div>`
+  ).join('');
+}
+
+function popWeightMats() {
+  const sel = document.getElementById('wt-mat');
+  if (!sel) return;
+  Object.entries(MATERIALS).forEach(([key, m]) => {
+    const o = document.createElement('option');
+    o.value = key; o.textContent = m.name;
+    sel.appendChild(o);
+  });
+}
+
+// Hardness: HRC central; convert to others via common approximations.
+function calcHard() {
+  const out = document.getElementById('hard-result');
+  const v = num('hard-val');
+  const from = document.getElementById('hard-from').value;
+  if (v == null) { out.innerHTML = 'Enter a value.'; return; }
+  let hrc;
+  if (from === 'hrc') hrc = v;
+  else if (from === 'hrb') hrc = 0.5217 * v - 12.95;          // HRB -> HRC (approx, mid-range)
+  else if (from === 'hb') hrc = hbToHrc(v);             // HB -> HRC (approx)
+  else if (from === 'hv') hrc = hvToHrc(v);
+  const hb = hrcToHb(hrc), hrb = hrcToHrb(hrc), hv = hrcToHv(hrc);
+  out.innerHTML = `HRC <b>${hrc.toFixed(1)}</b><br>HB <b>${hb.toFixed(0)}</b><br>HRB <b>${hrb.toFixed(1)}</b><br>HV <b>${hv.toFixed(0)}</b>`;
+}
+
+function hrcToHb(h) { return 9.85 * h + 65; }       // HRC -> HB (approx)
+function hrcToHrb(h) { return (h + 12.95) / 0.5217; } // HRC -> HRB (inverse of HRB->HRC)
+function hrcToHv(h) { return 9.37 * h + 105; }        // HRC -> HV (approx)
+function hvToHrc(v) { return (v - 105) / 9.37; }     // HV -> HRC (approx)
+function hbToHrc(v) { return (v - 65) / 9.85; }      // HB -> HRC (inverse of HRC->HB)
+
+// Material weight: volume (in³) × density (lb/in³)
+function calcWeight() {
+  const out = document.getElementById('wt-result');
+  const vol = num('wt-vol');
+  const key = document.getElementById('wt-mat').value;
+  const d = DENSITY[key];
+  if (vol == null) { out.innerHTML = 'Enter a volume.'; return; }
+  if (!d) { out.innerHTML = 'Pick a material.'; return; }
+  const lb = vol * d;
+  out.innerHTML = `Weight: <b>${lb.toFixed(2)} lb</b><br>(${vol.toFixed(2)} in³ × ${d} lb/in³)`;
+}
+
+// Tap drill %: compares actual drill to "basic" major - pitch.
+function calcTapPct() {
+  const out = document.getElementById('tap2-result');
+  const major = num('tap2-major'), tpi = num('tap2-tpi'), drill = num('tap2-drill');
+  if (!major || !tpi || drill == null) { out.innerHTML = 'Enter major, TPI, and drill.'; return; }
+  const p = 1 / tpi;
+  const pitchDia = major - 0.64952 * p;
+  const tapDrillBasic = major - p;                 // 100%-thread drill (too tight)
+  // percent thread = (pitchDia - drillDia) / (pitchDia - minorDia) × 100
+  const minorDia = major - 1.08253 * p;           // internal minor (UN)
+  const pct = ((pitchDia - drill) / (pitchDia - minorDia)) * 100;
+  out.innerHTML = `Approx thread: <b>${pct.toFixed(1)}%</b><br>Basic (100%) drill would be ${tapDrillBasic.toFixed(4)}`;
+}
+
+// Thread 3-wire: best wire diameter + measurement over wires (M).
+function calcWire() {
+  const out = document.getElementById('wire-result');
+  const major = num('wire-major'), tpi = num('wire-tpi');
+  if (!major || !tpi) { out.innerHTML = 'Enter major diameter and TPI.'; return; }
+  const p = 1 / tpi;
+  const E = 1.01036 * p / 2;                        // best wire diameter (60° thread)
+  const pitchDia = major - 0.64952 * p;
+  const M = pitchDia + 3 * E - 0.86603 * p;        // measurement over wires
+  out.innerHTML = `Best wire Ø: <b>${E.toFixed(4)}</b><br>Measure over wires (M): <b>${M.toFixed(4)}</b>`;
+}
+
+// Machinist self-test
+function startSelfTest() {
+  const out = document.getElementById('selftest-result');
+  const cat = document.getElementById('selftest-cat').value;
+  const qs = SELFTEST[cat];
+  if (!qs) { out.innerHTML = 'Pick a category.'; return; }
+  let html = '';
+  let score = 0;
+  qs.forEach((item, i) => {
+    const opts = item.a.map((a, j) =>
+      `<button class="st-opt" data-q="${i}" data-a="${j}" data-c="${item.c}">${a}</button>`
+    ).join('');
+    html += `<div class="st-q">${i + 1}. ${item.q}<br>${opts}</div>`;
+  });
+  html += `<div class="st-score" id="st-score"></div>`;
+  out.innerHTML = html;
+  out.querySelectorAll('.st-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const correct = parseInt(btn.dataset.c, 10);
+      const chosen = parseInt(btn.dataset.a, 10);
+      const qWrap = btn.closest('.st-q');
+      qWrap.querySelectorAll('.st-opt').forEach(b => {
+        b.disabled = true;
+        if (parseInt(b.dataset.a, 10) === correct) b.style.background = 'var(--c-accent)';
+        else if (b === btn) b.style.background = '#B23A2E';
+      });
+      if (chosen === correct) score++;
+      const scoreEl = out.querySelector('#st-score');
+      if (scoreEl) scoreEl.innerHTML = `Score: <b>${score}</b> / ${qs.length}`;
+    });
+  });
 }

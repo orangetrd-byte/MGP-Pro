@@ -163,6 +163,101 @@
           <div class="gdt-list" id="gdt-list"></div>
           <div class="safety">Symbols and plain-language meaning. Datums are physical references marked with boxed letters on the print.</div>
         </div>
+
+        <!-- Hardness Conversion -->
+        <div class="card">
+          <div class="card-title">🪨 Hardness Conversion</div>
+          <div class="row">
+            <label>Value</label>
+            <input id="hard-val" type="number" inputmode="decimal" placeholder="30" />
+          </div>
+          <div class="row">
+            <label>Scale</label>
+            <select id="hard-from">
+              <option value="hrc">HRC</option>
+              <option value="hrb">HRB</option>
+              <option value="hb">Brinell (HB)</option>
+              <option value="hv">Vickers (HV)</option>
+            </select>
+          </div>
+          <button class="btn-primary" id="calc-hard-btn">Convert</button>
+          <div class="result" id="hard-result"></div>
+          <div class="safety">Approximate conversions (ASTM/ISO relationships). Use calibrated test equipment for acceptance.</div>
+        </div>
+
+        <!-- Material Weight -->
+        <div class="card">
+          <div class="card-title">⚖ Material Weight</div>
+          <div class="row">
+            <label>Material</label>
+            <select id="wt-mat"></select>
+          </div>
+          <div class="row">
+            <label>Volume (in³)</label>
+            <input id="wt-vol" type="number" inputmode="decimal" placeholder="12.5" />
+          </div>
+          <button class="btn-primary" id="calc-wt-btn">Calculate</button>
+          <div class="result" id="wt-result"></div>
+        </div>
+
+        <!-- Tap Drill % -->
+        <div class="card">
+          <div class="card-title">🔩 Tap Drill % (cut vs roll)</div>
+          <div class="row">
+            <label>Major diameter</label>
+            <input id="tap2-major" type="number" inputmode="decimal" placeholder="0.250" />
+          </div>
+          <div class="row">
+            <label>TPI</label>
+            <input id="tap2-tpi" type="number" inputmode="decimal" placeholder="20" />
+          </div>
+          <div class="row">
+            <label>Tap drill used</label>
+            <input id="tap2-drill" type="number" inputmode="decimal" placeholder="0.213" />
+          </div>
+          <button class="btn-primary" id="calc-tap2-btn">Calculate</button>
+          <div class="result" id="tap2-result"></div>
+          <div class="safety">Cut taps ~50–75% thread; roll-form taps often 65–75% (no chip). Match to material.</div>
+        </div>
+
+        <!-- Thread 3-Wire -->
+        <div class="card">
+          <div class="card-title">🧵 Thread 3-Wire (best wire)</div>
+          <div class="row">
+            <label>Major diameter</label>
+            <input id="wire-major" type="number" inputmode="decimal" placeholder="0.500" />
+          </div>
+          <div class="row">
+            <label>TPI</label>
+            <input id="wire-tpi" type="number" inputmode="decimal" placeholder="13" />
+          </div>
+          <button class="btn-primary" id="calc-wire-btn">Calculate</button>
+          <div class="result" id="wire-result"></div>
+        </div>
+
+        <!-- Tool Wear reference -->
+        <div class="card">
+          <div class="card-title">🛠 Tool Wear Quick Ref</div>
+          <div class="gdt-list" id="wear-list"></div>
+        </div>
+
+        <!-- Machinist Self-Test -->
+        <div class="card">
+          <div class="card-title">🧠 Machinist Self-Test</div>
+          <div class="row">
+            <label>Category</label>
+            <select id="selftest-cat">
+              <option value="gdt">GD&T</option>
+              <option value="blueprint">Blueprints</option>
+              <option value="measure">Measuring</option>
+              <option value="feeds">Speeds &amp; Feeds</option>
+              <option value="materials">Materials</option>
+              <option value="safety">Safety</option>
+            </select>
+          </div>
+          <button class="btn-primary" id="selftest-start-btn">Start</button>
+          <div class="result" id="selftest-result"></div>
+        </div>
       </section>
 
       <!-- LEARN (placeholder) -->
