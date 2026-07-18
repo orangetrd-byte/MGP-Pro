@@ -1,0 +1,12 @@
+{
+  "name": "MGP Pro — Machinist Toolkit",
+  "short_name": "MGP Pro",
+  "description": "CNC machinist calculators and references: speeds/feeds, thread data, tap drill. Built by MGP.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0F1923",
+  "theme_color": "#0F1923",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
