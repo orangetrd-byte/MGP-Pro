@@ -108,26 +108,27 @@
           </div>
           <button class="btn-primary" id="calc-truepos-btn">Calculate</button>
           <div class="result" id="truepos-result"></div>
+          <div class="safety">Deviation from true position = 2√(x²+y²). Compare to the position tolerance on the print.</div>
         </div>
 
         <!-- Bolt Pattern -->
         <div class="card">
-          <div class="card-title">🔵 Bolt / Hole Pattern</div>
+          <div class="card-title">⚪ Bolt / Hole Pattern</div>
           <div class="row">
             <label>Hole count</label>
-            <input id="bolt-n" type="number" inputmode="numeric" placeholder="5" />
+            <input id="bolt-n" type="number" inputmode="numeric" placeholder="6" />
           </div>
           <div class="row">
-            <label>Radius (PCD)</label>
-            <input id="bolt-r" type="number" inputmode="decimal" placeholder="1.500" />
+            <label>Pitch radius</label>
+            <input id="bolt-r" type="number" inputmode="decimal" placeholder="2.000" />
           </div>
           <button class="btn-primary" id="calc-bolt-btn">Calculate</button>
           <div class="result" id="bolt-result"></div>
         </div>
 
-        <!-- Unit Conversion -->
+        <!-- Unit Converter -->
         <div class="card">
-          <div class="card-title">📐 Unit Conversion</div>
+          <div class="card-title">🔄 Unit Converter</div>
           <div class="row">
             <label>Value</label>
             <input id="conv-val" type="number" inputmode="decimal" placeholder="25.4" />
@@ -136,30 +137,31 @@
             <label>From</label>
             <select id="conv-from">
               <option value="mm">mm</option>
-              <option value="in">inch</option>
+              <option value="in">in</option>
+              <option value="mil">mil (0.001in)</option>
+              <option value="um">µm</option>
               <option value="cm">cm</option>
-              <option value="mil">mil (0.001")</option>
-              <option value="um">micron</option>
             </select>
           </div>
           <div class="row">
             <label>To</label>
             <select id="conv-to">
-              <option value="in">inch</option>
               <option value="mm">mm</option>
+              <option value="in">in</option>
+              <option value="mil">mil (0.001in)</option>
+              <option value="um">µm</option>
               <option value="cm">cm</option>
-              <option value="mil">mil (0.001")</option>
-              <option value="um">micron</option>
             </select>
           </div>
-          <button class="btn-primary" id="calc-conv-btn">Calculate</button>
+          <button class="btn-primary" id="calc-conv-btn">Convert</button>
           <div class="result" id="conv-result"></div>
         </div>
 
-        <!-- GD&T reference -->
+        <!-- GD&T Reference -->
         <div class="card">
-          <div class="card-title">📏 GD&amp;T Quick Reference</div>
+          <div class="card-title">📐 GD&amp;T Reference</div>
           <div class="gdt-list" id="gdt-list"></div>
+          <div class="safety">Symbols and plain-language meaning. Datums are physical references marked with boxed letters on the print.</div>
         </div>
       </section>
 
