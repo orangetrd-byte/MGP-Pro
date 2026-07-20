@@ -4,7 +4,7 @@ Tagline:
 > MGP Pro — the machinist's toolkit that teaches *and* calculates. No subscription, ever.
 
 ## Short (store blurb)
-MGP Pro is a CNC machinist calculator and reference built by a working machinist — not a calculator factory. Speeds & feeds, threads, tap drills, GD&T, true position, hardness, and more. Six plain-language lessons explain the *why* behind the numbers, and a Floor workspace keeps your job notes, setups, and draft G-code in your pocket. Free, offline, no paywall.
+MGP Pro is a CNC machinist calculator and reference built by a working machinist — not a calculator factory. Speeds & feeds across 40+ materials (including super-alloys), threads, tap drills, GD&T, true position, hardness, and more. Six plain-language lessons explain the *why* behind the numbers, and a Floor workspace keeps your job notes, setups, and draft G-code in your pocket. Free, offline, no paywall.
 
 ## Full (store description)
 MGP Pro is the shop-floor companion for CNC machinists, operators, and apprentices.
@@ -15,7 +15,7 @@ Most calculator apps hand you 36 tools and leave you drowning. MGP Pro does the 
 - Speeds & feeds (inch/metric, turn/mill/drill)
 - Thread data, tap drill %, and 3-wire measurement
 - True position, bolt/hole patterns, unit conversion
-- GD&T reference, hardness conversion, material weight
+- GD&T reference, hardness conversion, material weight (40+ materials incl. super-alloys, each with a working-tip)
 - Tool-wear quick reference — read the failure, fix the cause
 - Machinist self-test (6 categories) to check your own knowledge
 
