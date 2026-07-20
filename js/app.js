@@ -1,5 +1,5 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.12';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.13';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
@@ -113,26 +113,44 @@ const SELFTEST = {
   gdt: [
     { q: 'Position tolerance controls a feature relative to...', a: ['Datum(s)', 'The nearest hole', 'Tool diameter', 'Spindle RPM'], c: 0 },
     { q: 'Which is a FORM control (no datum needed)?', a: ['Flatness', 'Perpendicularity', 'Position', 'Runout'], c: 0 },
+    { q: 'A position tolerance is applied to...', a: ['A feature location', 'Surface finish', 'A material spec', 'Tool wear'], c: 0 },
+    { q: 'Datums are marked on a print with...', a: ['Boxed letters (A, B, C)', 'Red dashed lines', 'A star symbol', 'Underlining'], c: 0 },
+    { q: 'True Position is reported as...', a: ['2√(x²+y²) from the ideal', 'The hole diameter', 'Surface roughness', 'The RPM'], c: 0 },
   ],
   blueprint: [
     { q: 'A dimension without a tolerance is...', a: ['Exact (no variation)', 'Controlled by general notes', 'Ignored', 'A basic dimension'], c: 1 },
     { q: 'A section view shows...', a: ['Outside surface only', 'Interior as if cut', 'The title block', 'A 3D view'], c: 1 },
+    { q: 'A basic dimension (boxed number) is used for...', a: ['A theoretically exact size', 'A tolerance', 'A surface finish', 'A thread callout'], c: 0 },
+    { q: 'Hidden (internal) features are shown with...', a: ['Dashed lines', 'Solid thick lines', 'Center marks', 'Chain lines'], c: 0 },
+    { q: 'The title block usually holds...', a: ['Material, tolerances, scale', 'The operator\'s name only', 'Tool offsets', 'Machine RPM'], c: 0 },
   ],
   measure: [
     { q: 'A micrometer reads to...', a: ['0.001 in', '0.010 in', '0.0001 in', '0.1 in'], c: 0 },
     { q: 'To measure a hole diameter you typically use a...', a: ['Caliper jaw', 'Bore gauge or ID mic', 'Tape measure', 'Depth gauge'], c: 1 },
+    { q: 'A caliper typically reads to...', a: ['0.001 in', '0.0001 in', '0.01 in only', '0.1 in'], c: 0 },
+    { q: 'Before measuring you should...', a: ['Clean the part and anvils', 'Use a worn jaw', 'Guess the reading', 'Skip calibration'], c: 0 },
+    { q: 'To check a blind hole depth you reach for a...', a: ['Depth mic or depth gauge', 'Bore gauge', 'Thread mic', 'Vernier caliper only'], c: 0 },
   ],
   feeds: [
     { q: 'RPM increases when diameter...', a: ['Increases', 'Decreases', 'Stays same', 'Is squared'], c: 1 },
     { q: 'IPM feed = feed/rev × ...', a: ['Diameter', 'RPM', 'SFM', 'TPI'], c: 1 },
+    { q: 'SFM depends on...', a: ['Material + tool, sets RPM via diameter', 'Only the RPM knob', 'The coolant color', 'The part weight'], c: 0 },
+    { q: 'On a mill, feed per tooth × flutes × RPM gives...', a: ['IPM', 'SFM', 'TPI', 'The major diameter'], c: 0 },
+    { q: 'Spinning too slow tends to cause...', a: ['Work-hardening / built-up edge', 'A faster cycle', 'Cooler chips', 'Less tool wear'], c: 0 },
   ],
   materials: [
     { q: 'Which machines fastest (typical SFM)?', a: ['Aluminum', 'Tool steel', 'Titanium', 'Inconel'], c: 0 },
     { q: 'Stainless 304 is known for being...', a: ['Free-machining', 'Gummy / work-hardening', 'Very soft', 'Brittle'], c: 1 },
+    { q: 'Titanium is tricky because it...', a: ['Galls and holds heat at the cut', 'Is very soft', 'Cuts like aluminum', 'Needs no coolant'], c: 0 },
+    { q: 'Inconel / super-alloys tend to...', a: ['Work-harden and need rigid setups', 'Be free-machining', 'Cut fastest of all', 'Need low SFM like aluminum'], c: 0 },
+    { q: 'Free-machining steels (12L14, 1144) are easy because they...', a: ['Contain sulfur/lead for chip break', 'Are very hard', 'Weld to the tool', 'Have no carbon'], c: 0 },
   ],
   safety: [
     { q: 'Before running new G-code you should...', a: ['Single-block + dry run', 'Hit cycle start fast', 'Trust it', 'Leave the door open'], c: 0 },
     { q: 'Long hair and loose sleeves near a lathe are...', a: ['Fine', 'A catch hazard — tie back/contain', 'Only risky at high RPM', 'Required'], c: 1 },
+    { q: 'Gloves near a rotating spindle are...', a: ['Safe', 'A catch hazard — avoid them', 'Required by law', 'Fine at low RPM'], c: 1 },
+    { q: 'Clearing chips is best done with...', a: ['A brush or hook', 'Your bare hand', 'Compressed air at your face', 'The spinning tool'], c: 0 },
+    { q: 'If something looks wrong mid-cycle you should...', a: ['Hit feed hold / e-stop, then investigate', 'Reach in to fix it', 'Ignore it', 'Speed up'], c: 0 },
   ],
 };
 
@@ -437,6 +455,16 @@ function calcWire() {
   out.innerHTML = `Best wire Ø: <b>${E.toFixed(4)}</b><br>Measure over wires (M): <b>${M.toFixed(4)}</b>`;
 }
 
+// Fisher-Yates shuffle (returns a new array; does not mutate input)
+function shuffleArr(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // Machinist self-test
 function startSelfTest() {
   const out = document.getElementById('selftest-result');
@@ -445,25 +473,24 @@ function startSelfTest() {
   if (!qs) { out.innerHTML = 'Pick a category.'; return; }
   let html = '';
   let score = 0;
-  qs.forEach((item, i) => {
-    const opts = item.a.map((a, j) =>
-      `<button class="st-opt" data-q="${i}" data-a="${j}" data-c="${item.c}">${a}</button>`
-    ).join('');
+  shuffleArr(qs).forEach((item, i) => {
+    const opts = shuffleArr(item.a.map((text, j) => ({ text, correct: j === item.c })))
+      .map(o => `<button class="st-opt" data-correct="${o.correct}">${o.text}</button>`)
+      .join('');
     html += `<div class="st-q">${i + 1}. ${item.q}<br>${opts}</div>`;
   });
   html += `<div class="st-score" id="st-score"></div>`;
   out.innerHTML = html;
   out.querySelectorAll('.st-opt').forEach(btn => {
     btn.addEventListener('click', () => {
-      const correct = parseInt(btn.dataset.c, 10);
-      const chosen = parseInt(btn.dataset.a, 10);
+      const correct = btn.dataset.correct === 'true';
       const qWrap = btn.closest('.st-q');
       qWrap.querySelectorAll('.st-opt').forEach(b => {
         b.disabled = true;
-        if (parseInt(b.dataset.a, 10) === correct) b.style.background = 'var(--c-accent)';
+        if (b.dataset.correct === 'true') b.style.background = 'var(--c-accent)';
         else if (b === btn) b.style.background = '#B23A2E';
       });
-      if (chosen === correct) score++;
+      if (correct) score++;
       const scoreEl = out.querySelector('#st-score');
       if (scoreEl) scoreEl.innerHTML = `Score: <b>${score}</b> / ${qs.length}`;
     });
