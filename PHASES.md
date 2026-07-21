@@ -43,7 +43,7 @@ Repo: https://github.com/orangetrd-byte/MGP-Pro · Live: https://orangetrd-byte.
 - Draft G-code generator + toolpath plot (marked as check aid, not approval)
 - All Floor data localStorage-persisted
 
-## Phase 6A — Material working-tips (`.06`–`.12`)
+## Phase 6A — Material working-tips (`.06`–`.13`)
 - Added 9 super-alloys (Inconel / Hastelloy / Waspaloy / Rene / Monel / Haynes)
   to Speeds & Feeds and Weight calc
 - Working-tip `note` added to all ~40 materials, shown inline under the
@@ -51,6 +51,8 @@ Repo: https://github.com/orangetrd-byte/MGP-Pro · Live: https://orangetrd-byte.
 - Layout fixes so long alloy names and notes display cleanly
 - Reworked Threads lesson into a worked 1/2-13 UNC walkthrough
   (major / pitch / minor / tap drill / % thread)
+- Self-test: shuffled question + option order; expanded question bank from
+  2 to 5 per category; total = 30+ scored items
 
 ## Phase 6B — Sub-category drill-down (PLANNED, not built)
 Restructure both material pickers into a two-level family → alloy tree.

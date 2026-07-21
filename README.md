@@ -8,7 +8,7 @@ calculator apps — into one app with **no subscription**.
 
 - **URL:** https://orangetrd-byte.github.io/MGP-Pro/
 - **Repo:** https://github.com/orangetrd-byte/MGP-Pro (pushed to `origin/master`)
-- **Build:** see `APP_BUILD` in `js/app.js` (currently `2026.07.17.12`)
+- **Build:** see `APP_BUILD` in `js/app.js` (currently `2026.07.17.13`)
 
 ## What's built (Phase 1 → 6A)
 
@@ -18,7 +18,7 @@ See [PHASES.md](PHASES.md) for the full per-phase breakdown. Summary:
   Tap Drill % (cut vs roll-form), 3-Wire thread measurement, True Position,
   Bolt/Hole Pattern, Unit Converter, GD&T reference, Hardness conversion,
   Material Weight (40+ materials incl. 9 super-alloys), Tool-Wear reference,
-  Machinist self-test (6 categories).
+  Machinist self-test (6 categories; shuffled questions, 5 choices each).
 - **Learn** — 6 foundational why-before-how lessons, each linked to its Calc tool.
 - **Floor** — Job notes + setup reference + lathe move calc + draft G-code with
   toolpath plot, all localStorage-persisted.
