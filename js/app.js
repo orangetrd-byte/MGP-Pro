@@ -545,6 +545,7 @@ function renderRoadmap() {
     });
   });
   updateRoadmapCount();
+  initPathBackup();
 }
 
 function showScreen(id) {
@@ -626,6 +627,7 @@ function initFloor() {
     drawPlot(null);
     setFloorMode('od', false);
   });
+  initFloorBackup();
 }
 
 function setFloorMode(mode, save) {
@@ -724,4 +726,79 @@ function drawPlot(move) {
     `<text x="${p2[0]+8}" y="${p2[1]+16}" fill="#8AA0AE" font-size="12">feed Z${fmt3(move.targetZ)}</text>` +
     `<circle cx="${p3[0]}" cy="${p3[1]}" r="6" fill="#B23A2E"/>` +
     `<text x="${p3[0]+8}" y="${p3[1]-8}" fill="#8AA0AE" font-size="12">target X${fmt3(move.targetX)} Z${fmt3(move.targetZ)}</text>`;
+}
+
+function initFloorBackup(){
+  const exportBtn = document.getElementById('floor-export-btn');
+  const importInput = document.getElementById('floor-import-input');
+  if (!exportBtn || !importInput) return;
+  exportBtn.addEventListener('click', () => {
+    try {
+      const raw = localStorage.getItem(FLOOR_KEY) || '{}';
+      const blob = new Blob([raw], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mgp-floor-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) { alert('Export failed: ' + e.message); }
+  });
+  importInput.addEventListener('change', () => {
+    const file = importInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || typeof data !== 'object') throw new Error('Invalid file');
+        localStorage.setItem(FLOOR_KEY, JSON.stringify(data));
+        importInput.value = '';
+        FLOOR_FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = data[id] || ''; });
+        const gcode = document.getElementById('gcode-out');
+        if (gcode) gcode.textContent = data.gcode || 'Calculate a move first.';
+        if (data.floorMode) setFloorMode(data.floorMode, true);
+        alert('Floor data imported.');
+      } catch (e) { alert('Import failed: ' + e.message); importInput.value = ''; }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function initPathBackup(){
+  const exportBtn = document.getElementById('path-export-btn');
+  const importInput = document.getElementById('path-import-input');
+  if (!exportBtn || !importInput) return;
+  exportBtn.addEventListener('click', () => {
+    try {
+      const raw = localStorage.getItem('mgp-pro-path') || '{}';
+      const blob = new Blob([raw], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mgp-path-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) { alert('Export failed: ' + e.message); }
+  });
+  importInput.addEventListener('change', () => {
+    const file = importInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || typeof data !== 'object') throw new Error('Invalid file');
+        localStorage.setItem('mgp-pro-path', JSON.stringify(data));
+        importInput.value = '';
+        renderRoadmap();
+        alert('My Path progress imported.');
+      } catch (e) { alert('Import failed: ' + e.message); importInput.value = ''; }
+    };
+    reader.readAsText(file);
+  });
 }

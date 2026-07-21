@@ -89,6 +89,13 @@ body {
 .gcode-out { background: #0B131A; border: 1px solid var(--c-border); border-radius: var(--r-sm); padding: 0.6rem; font-family: monospace; font-size: 0.72rem; white-space: pre-wrap; color: var(--c-accent); line-height: 1.45; margin: 0; }
 .row-wrap { margin-bottom: 0.7rem; }
 .mat-note { font-size: 0.74rem; color: var(--c-text-3); line-height: 1.35; margin-top: 0.4rem; padding: 0.4rem 0.5rem; background: var(--c-surface2); border-left: 3px solid var(--c-accent); border-radius: var(--r-sm); }
+/* small additions - backup UI */
+.backup-bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:.5rem}
+.btn-backup{display:inline-flex;align-items:center;gap:.35rem;background:var(--c-surface2);color:var(--c-text);border:1px solid var(--c-border);padding:.45rem .65rem;border-radius:.5rem;font-size:14px}
+.file-label{display:inline-flex;align-items:center;gap:.35rem;background:var(--c-surface2);color:var(--c-text);border:1px solid var(--c-border);padding:.45rem .65rem;border-radius:.5rem;font-size:14px;cursor:pointer;position:relative}
+.file-label input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+.backup-note{color:var(--c-muted);font-size:12px}
+
 .plot { width: 100%; height: auto; background: #0B131A; border: 1px solid var(--c-border); border-radius: var(--r-sm); }
 .nav-bar {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 520px;

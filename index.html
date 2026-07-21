@@ -400,6 +400,14 @@
         </div>
 
         <div class="card">
+          <div class="backup-bar">
+            <button class="btn-backup" id="floor-export-btn" type="button">Export JSON</button>
+            <label class="btn-backup file-label">
+              Import JSON
+              <input id="floor-import-input" type="file" accept="application/json" />
+            </label>
+            <span class="backup-note">Backup before clearing or switching devices.</span>
+          </div>
           <button class="btn-primary" id="floor-reset-btn" style="background:var(--c-surface2);color:var(--c-text);border:1px solid var(--c-border)">Clear Job</button>
           <div class="safety">All data stays on this device (localStorage). No upload.</div>
         </div>
@@ -410,6 +418,14 @@
         <div class="section-label">My Path</div>
         <div class="card">
           <div class="card-title">🛤 Your Learner Roadmap</div>
+          <div class="backup-bar">
+            <button class="btn-backup" id="path-export-btn" type="button">Export JSON</button>
+            <label class="btn-backup file-label">
+              Import JSON
+              <input id="path-import-input" type="file" accept="application/json" />
+            </label>
+            <span class="backup-note">Backup progress before clearing site data.</span>
+          </div>
           <div class="roadmap" id="roadmap-list"></div>
         </div>
       </section>
