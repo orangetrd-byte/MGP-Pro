@@ -1,5 +1,5 @@
 'use strict';
-const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.17.13';
+const APP_BUILD = 'MGP Pro | v1.0.0 | Build 2026.07.22.01';
 
 // Material speed data: [sfmLow, sfmHigh] (inch), [vcLow, vcHigh] (metric m/min).
 // Typical shop starting ranges — verify per machine/setup. Source: common machining references.
@@ -323,9 +323,18 @@ function calcThread() {
 
 function calcTap() {
   const out = document.getElementById('tap-result');
-  const major = num('tap-major'), tpi = num('tap-tpi');
+  const major = num('tap-major'), tpi = num('tap-tpi'), drill = num('tap-drill');
   if (!major || !tpi) { out.innerHTML = 'Enter major diameter and TPI.'; return; }
-  out.innerHTML = `Tap drill (≈75%): <b>${(major - 1 / tpi).toFixed(4)}</b><br>Rule of thumb: major − pitch = ${major} − ${(1 / tpi).toFixed(4)}`;
+  const p = 1 / tpi;
+  const tapDrillBasic = major - p;
+  let html = `Tap drill (≈75%): <b>${tapDrillBasic.toFixed(4)}</b><br>Rule of thumb: major − pitch = ${major} − ${p.toFixed(4)}`;
+  if (drill != null) {
+    const pitchDia = major - 0.64952 * p;
+    const minorDia = major - 1.08253 * p;
+    const pct = ((pitchDia - drill) / (pitchDia - minorDia)) * 100;
+    html += `<br>Approx thread engagement: <b>${pct.toFixed(1)}%</b>`;
+  }
+  out.innerHTML = html;
 }
 
 function calcTruePos() {
@@ -333,7 +342,7 @@ function calcTruePos() {
   const x = num('tp-xdev'), y = num('tp-ydev');
   if (x == null || y == null) { out.innerHTML = 'Enter X and Y deviation.'; return; }
   const tp = 2 * Math.sqrt(x * x + y * y);
-  out.innerHTML = `True position deviation: <b>${tp.toFixed(4)}</b><br>From datums, regardless of sign. Compare to the position tolerance.`;
+  out.innerHTML = `True position deviation: <b>${tp.toFixed(4)}</b><br>From datums, regardless of sign. Compare to the position tolerance on the print.`;
 }
 
 function calcBolt() {

@@ -2,7 +2,7 @@
 
 All versions map to `APP_BUILD` in `js/app.js`.
 
-## v1.0.0 — Build 2026.07.17.13
+## v1.0.0 — Build 2026.07.22.01
 - Stable baseline from Phase 1 → 6A
 - Speeds & Feeds, Thread Data, Tap Drill, True Position, Bolt/Hole, Unit Converter
 - GD&T reference, Hardness conversion, Material Weight (40+ materials incl. 9 super-alloys)
@@ -14,4 +14,4 @@ All versions map to `APP_BUILD` in `js/app.js`.
 ## [Unreleased]
 - Phase 2: Floor + My Path JSON backup export/import
 - Automated calculator formula tests (`tests/phase-one-formulas.js`)
-- Modularization prep for Phase 6B
+- Phase 3 modularization attempt paused. Monolithic `app.js` retained until a bundler or full rewrite phase is approved. Half-split namespace approach broke browser runtime despite passing Node `-c` syntax checks.
