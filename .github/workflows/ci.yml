@@ -1,0 +1,22 @@
+name: MGP-Pro CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: JS syntax checks
+        run: |
+          node --check js/app.js
+          node --check sw.js
+      - name: Math tests
+        run: node tests/phase-one-formulas.js
