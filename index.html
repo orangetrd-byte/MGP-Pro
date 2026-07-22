@@ -33,13 +33,13 @@
           </div>
           <div class="row-wrap">
             <div class="row col">
-              <label>Material</label>
+              <label for="mat-select">Material</label>
               <select id="mat-select"></select>
             </div>
             <div class="mat-note" id="mat-note"></div>
           </div>
           <div class="row">
-            <label>Operation</label>
+            <label for="op-select">Operation</label>
             <select id="op-select">
               <option value="turn">Turning (lathe)</option>
               <option value="mill">Milling</option>
@@ -47,23 +47,23 @@
             </select>
           </div>
           <div class="row">
-            <label id="dia-label">Diameter (in)</label>
+            <label id="dia-label" for="dia-input">Diameter (in)</label>
             <input id="dia-input" type="number" inputmode="decimal" placeholder="1.000" />
           </div>
           <div class="row">
-            <label id="sfm-label">Surface speed (SFM)</label>
+            <label id="sfm-label" for="sfm-input">Surface speed (SFM)</label>
             <input id="sfm-input" type="number" inputmode="decimal" placeholder="auto" />
           </div>
           <div class="row" id="feed-row">
-            <label id="feed-label">Feed / rev (IPR)</label>
+            <label id="feed-label" for="feed-input">Feed / rev (IPR)</label>
             <input id="feed-input" type="number" inputmode="decimal" placeholder="0.005" />
           </div>
           <div class="row hidden" id="flutes-row">
-            <label>Flutes</label>
+            <label for="flutes-input">Flutes</label>
             <input id="flutes-input" type="number" inputmode="numeric" placeholder="2" value="2" />
           </div>
           <button class="btn-primary" id="calc-speeds-btn">Calculate</button>
-          <div class="result" id="speeds-result"></div>
+          <div class="result" id="speeds-result" aria-live="polite"></div>
           <div class="safety">Verify RPM, feed, and all setup on the machine before running. Values are typical starting points, not approvals.</div>
         </div>
 
@@ -71,46 +71,50 @@
         <div class="card">
           <div class="card-title">🧵 Thread Data (60° UN)</div>
           <div class="row">
-            <label>Major diameter</label>
+            <label for="th-major">Major diameter</label>
             <input id="th-major" type="number" inputmode="decimal" placeholder="0.500" />
           </div>
           <div class="row">
-            <label>TPI (threads/inch)</label>
+            <label for="th-tpi">TPI (threads/inch)</label>
             <input id="th-tpi" type="number" inputmode="decimal" placeholder="13" />
           </div>
           <button class="btn-primary" id="calc-thread-btn">Calculate</button>
-          <div class="result" id="thread-result"></div>
+          <div class="result" id="thread-result" aria-live="polite"></div>
         </div>
 
-        <!-- Tap Drill -->
+        <!-- Tap Drill / Thread Engagement -->
         <div class="card">
-          <div class="card-title">🔩 Tap Drill (≈75% thread)</div>
+          <div class="card-title">🔩 Tap Drill &amp; Engagement</div>
           <div class="row">
-            <label>Major diameter</label>
+            <label for="tap-major">Major diameter</label>
             <input id="tap-major" type="number" inputmode="decimal" placeholder="0.250" />
           </div>
           <div class="row">
-            <label>TPI</label>
+            <label for="tap-tpi">TPI</label>
             <input id="tap-tpi" type="number" inputmode="decimal" placeholder="20" />
           </div>
+          <div class="row">
+            <label for="tap-drill">Tap drill used <span class="opt">(optional for %)</span></label>
+            <input id="tap-drill" type="number" inputmode="decimal" placeholder="0.213" />
+          </div>
           <button class="btn-primary" id="calc-tap-btn">Calculate</button>
-          <div class="result" id="tap-result"></div>
-          <div class="safety">Rule of thumb: tap drill ≈ major − pitch. Adjust for material and desired thread %.</div>
+          <div class="result" id="tap-result" aria-live="polite"></div>
+          <div class="safety">Rule of thumb: tap drill ≈ major − pitch. Add the drill you used to see approximate thread engagement %.</div>
         </div>
 
         <!-- True Position -->
         <div class="card">
           <div class="card-title">🎯 True Position</div>
           <div class="row">
-            <label>X deviation</label>
+            <label for="tp-xdev">X deviation</label>
             <input id="tp-xdev" type="number" inputmode="decimal" placeholder="0.002" />
           </div>
           <div class="row">
-            <label>Y deviation</label>
+            <label for="tp-ydev">Y deviation</label>
             <input id="tp-ydev" type="number" inputmode="decimal" placeholder="0.001" />
           </div>
           <button class="btn-primary" id="calc-truepos-btn">Calculate</button>
-          <div class="result" id="truepos-result"></div>
+          <div class="result" id="truepos-result" aria-live="polite"></div>
           <div class="safety">Deviation from true position = 2√(x²+y²). Compare to the position tolerance on the print.</div>
         </div>
 
@@ -118,26 +122,26 @@
         <div class="card">
           <div class="card-title">⚪ Bolt / Hole Pattern</div>
           <div class="row">
-            <label>Hole count</label>
+            <label for="bolt-n">Hole count</label>
             <input id="bolt-n" type="number" inputmode="numeric" placeholder="6" />
           </div>
           <div class="row">
-            <label>Pitch radius</label>
+            <label for="bolt-r">Pitch radius</label>
             <input id="bolt-r" type="number" inputmode="decimal" placeholder="2.000" />
           </div>
           <button class="btn-primary" id="calc-bolt-btn">Calculate</button>
-          <div class="result" id="bolt-result"></div>
+          <div class="result" id="bolt-result" aria-live="polite"></div>
         </div>
 
         <!-- Unit Converter -->
         <div class="card">
           <div class="card-title">🔄 Unit Converter</div>
           <div class="row">
-            <label>Value</label>
+            <label for="conv-val">Value</label>
             <input id="conv-val" type="number" inputmode="decimal" placeholder="25.4" />
           </div>
           <div class="row">
-            <label>From</label>
+            <label for="conv-from">From</label>
             <select id="conv-from">
               <option value="mm">mm</option>
               <option value="in">in</option>
@@ -147,7 +151,7 @@
             </select>
           </div>
           <div class="row">
-            <label>To</label>
+            <label for="conv-to">To</label>
             <select id="conv-to">
               <option value="mm">mm</option>
               <option value="in">in</option>
@@ -157,13 +161,13 @@
             </select>
           </div>
           <button class="btn-primary" id="calc-conv-btn">Convert</button>
-          <div class="result" id="conv-result"></div>
+          <div class="result" id="conv-result" aria-live="polite"></div>
         </div>
 
         <!-- GD&T Reference -->
         <div class="card">
           <div class="card-title">📐 GD&amp;T Reference</div>
-          <div class="gdt-list" id="gdt-list"></div>
+          <div class="gdt-list" id="gdt-list" aria-label="GD&T symbol reference"></div>
           <div class="safety">Symbols and plain-language meaning. Datums are physical references marked with boxed letters on the print.</div>
         </div>
 
@@ -171,11 +175,11 @@
         <div class="card">
           <div class="card-title">🪨 Hardness Conversion</div>
           <div class="row">
-            <label>Value</label>
+            <label for="hard-val">Value</label>
             <input id="hard-val" type="number" inputmode="decimal" placeholder="30" />
           </div>
           <div class="row">
-            <label>Scale</label>
+            <label for="hard-from">Scale</label>
             <select id="hard-from">
               <option value="hrc">HRC</option>
               <option value="hrb">HRB</option>
@@ -184,7 +188,7 @@
             </select>
           </div>
           <button class="btn-primary" id="calc-hard-btn">Convert</button>
-          <div class="result" id="hard-result"></div>
+          <div class="result" id="hard-result" aria-live="polite"></div>
           <div class="safety">Approximate conversions (ASTM/ISO relationships). Use calibrated test equipment for acceptance.</div>
         </div>
 
@@ -193,36 +197,36 @@
           <div class="card-title">⚖ Material Weight</div>
           <div class="row-wrap">
             <div class="row col">
-              <label>Material</label>
+              <label for="wt-mat">Material</label>
               <select id="wt-mat"></select>
             </div>
             <div class="mat-note" id="wt-note"></div>
           </div>
           <div class="row">
-            <label>Volume (in³)</label>
+            <label for="wt-vol">Volume (in³)</label>
             <input id="wt-vol" type="number" inputmode="decimal" placeholder="12.5" />
           </div>
           <button class="btn-primary" id="calc-wt-btn">Calculate</button>
-          <div class="result" id="wt-result"></div>
+          <div class="result" id="wt-result" aria-live="polite"></div>
         </div>
 
         <!-- Tap Drill % -->
         <div class="card">
           <div class="card-title">🔩 Tap Drill % (cut vs roll)</div>
           <div class="row">
-            <label>Major diameter</label>
+            <label for="tap2-major">Major diameter</label>
             <input id="tap2-major" type="number" inputmode="decimal" placeholder="0.250" />
           </div>
           <div class="row">
-            <label>TPI</label>
+            <label for="tap2-tpi">TPI</label>
             <input id="tap2-tpi" type="number" inputmode="decimal" placeholder="20" />
           </div>
           <div class="row">
-            <label>Tap drill used</label>
+            <label for="tap2-drill">Tap drill used</label>
             <input id="tap2-drill" type="number" inputmode="decimal" placeholder="0.213" />
           </div>
           <button class="btn-primary" id="calc-tap2-btn">Calculate</button>
-          <div class="result" id="tap2-result"></div>
+          <div class="result" id="tap2-result" aria-live="polite"></div>
           <div class="safety">Cut taps ~50–75% thread; roll-form taps often 65–75% (no chip). Match to material.</div>
         </div>
 
@@ -282,27 +286,27 @@
         <div class="card">
           <div class="card-title">📋 Job Notes</div>
           <div class="row col">
-            <label>Part number</label>
+            <label for="job-part">Part number</label>
             <input id="job-part" type="text" placeholder="e.g. BRKT-104" />
           </div>
           <div class="row col">
-            <label>Material</label>
+            <label for="job-mat">Material</label>
             <input id="job-mat" type="text" placeholder="e.g. 6061 AL" />
           </div>
           <div class="row col">
-            <label>Operation</label>
+            <label for="job-op">Operation</label>
             <input id="job-op" type="text" placeholder="e.g. OD turn + face" />
           </div>
           <div class="row col">
-            <label>Machine</label>
+            <label for="job-machine">Machine</label>
             <input id="job-machine" type="text" placeholder="e.g. Johnford HT 60" />
           </div>
           <div class="row col">
-            <label>Tool notes</label>
+            <label for="job-toolnotes">Tool notes</label>
             <input id="job-toolnotes" type="text" placeholder="insert, radius, etc." />
           </div>
           <div class="row col">
-            <label>Setup notes</label>
+            <label for="job-setupnotes">Setup notes</label>
             <input id="job-setupnotes" type="text" placeholder="fixturing, order, gotchas" />
           </div>
         </div>
@@ -310,27 +314,27 @@
         <div class="card">
           <div class="card-title">⚙ Setup Reference</div>
           <div class="row col">
-            <label>Work offset</label>
+            <label for="setup-offset">Work offset</label>
             <input id="setup-offset" type="text" placeholder="G54" />
           </div>
           <div class="row col">
-            <label>Stock diameter</label>
+            <label for="setup-stockdia">Stock diameter</label>
             <input id="setup-stockdia" type="number" inputmode="decimal" placeholder="2.500" />
           </div>
           <div class="row col">
-            <label>Chuck / jaw</label>
+            <label for="setup-chuck">Chuck / jaw</label>
             <input id="setup-chuck" type="text" placeholder="3-jaw, soft jaws" />
           </div>
           <div class="row col">
-            <label>Stickout</label>
+            <label for="setup-stickout">Stickout</label>
             <input id="setup-stickout" type="text" placeholder="2.0 in" />
           </div>
           <div class="row col">
-            <label>Coolant</label>
+            <label for="setup-coolant">Coolant</label>
             <input id="setup-coolant" type="text" placeholder="flood / thru-spindle" />
           </div>
           <div class="row col">
-            <label>Inspection notes</label>
+            <label for="setup-insp">Inspection notes</label>
             <input id="setup-insp" type="text" placeholder="critical dims, how to check" />
           </div>
         </div>
@@ -338,56 +342,56 @@
         <div class="card">
           <div class="card-title">📐 Lathe Move Calculator</div>
           <div class="row">
-            <label>Mode</label>
+            <label for="floor-mode-seg">Mode</label>
             <div class="seg" id="floor-mode-seg">
               <button data-mode="od" class="seg-btn active">OD / face</button>
               <button data-mode="id" class="seg-btn">ID / bore</button>
             </div>
           </div>
           <div class="row col">
-            <label>Touch-off X diameter</label>
+            <label for="touch-dia">Touch-off X diameter</label>
             <input id="touch-dia" type="number" inputmode="decimal" placeholder="2.500" />
           </div>
           <div class="row col">
-            <label>Target X diameter</label>
+            <label for="target-dia">Target X diameter</label>
             <input id="target-dia" type="number" inputmode="decimal" placeholder="2.000" />
           </div>
           <div class="row col">
-            <label>Face Z (0 = face)</label>
+            <label for="face-z">Face Z (0 = face)</label>
             <input id="face-z" type="number" inputmode="decimal" placeholder="0.000" />
           </div>
           <div class="row col">
-            <label>Plunge depth (Z)</label>
+            <label for="plunge-depth">Plunge depth (Z)</label>
             <input id="plunge-depth" type="number" inputmode="decimal" placeholder="0.500" />
           </div>
           <div class="row">
-            <label>Z direction</label>
+            <label for="z-dir">Z direction</label>
             <select id="z-dir">
               <option value="minus">Minus (−Z, into part)</option>
               <option value="plus">Plus (+Z, away)</option>
             </select>
           </div>
           <button class="btn-primary" id="floor-calc-btn">Calculate Move</button>
-          <div class="result" id="floor-result"></div>
+          <div class="result" id="floor-result" aria-live="polite"></div>
           <div class="safety">Draft aid only. Verify X diameter mode, offsets, clearance, spindle direction, and collision before running.</div>
         </div>
 
         <div class="card">
           <div class="card-title">📜 Draft G-Code</div>
           <div class="row col">
-            <label>Tool call (T/M)</label>
+            <label for="g-tool">Tool call (T/M)</label>
             <input id="g-tool" type="text" placeholder="T0101" />
           </div>
           <div class="row col">
-            <label>Speed (S/M)</label>
+            <label for="g-speed">Speed (S/M)</label>
             <input id="g-speed" type="text" placeholder="S800 M03" />
           </div>
           <div class="row col">
-            <label>Feed (F)</label>
+            <label for="g-feed">Feed (F)</label>
             <input id="g-feed" type="text" placeholder="0.004" />
           </div>
           <div class="row col">
-            <label>Comment</label>
+            <label for="g-comment">Comment</label>
             <input id="g-comment" type="text" placeholder="OD turn to 2.000" />
           </div>
           <button class="btn-primary" id="g-build-btn">Generate</button>
