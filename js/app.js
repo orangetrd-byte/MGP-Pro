@@ -97,14 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-function num(id) { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; }
+
 
 function calcSpeeds() {
   const out = document.getElementById('speeds-result');
-  const dia = num('dia-input');
+  const dia = window.MGP.utils.num('dia-input');
   const m = window.MGP.DATA.MATERIALS[document.getElementById('mat-select').value];
-  const sfm = num('sfm-input') ?? (state.unit === 'inch' ? m.sfm[1] : m.vc[1]);
-  const feed = num('feed-input');
+  const sfm = window.MGP.utils.num('sfm-input') ?? (state.unit === 'inch' ? m.sfm[1] : m.vc[1]);
+  const feed = window.MGP.utils.num('feed-input');
   if (!dia || dia <= 0) { out.innerHTML = 'Enter a diameter.'; return; }
 
   const rpm = state.unit === 'inch' ? (sfm * 3.8197) / dia : (sfm * 1000) / (Math.PI * dia);
@@ -112,7 +112,7 @@ function calcSpeeds() {
   if (feed != null) {
     const op = document.getElementById('op-select').value;
     if (op === 'mill') {
-      const flutes = num('flutes-input') || 2;
+      const flutes = window.MGP.utils.num('flutes-input') || 2;
       const ipm = feed * flutes * rpm;
       feedNote = `Feed: <b>${ipm.toFixed(1)} ${state.unit === 'metric' ? 'mm/min' : 'IPM'}</b> (${feed} IPT × ${flutes} flutes × ${rpm.toFixed(0)} RPM)`;
     } else {
@@ -125,7 +125,7 @@ function calcSpeeds() {
 
 function calcThread() {
   const out = document.getElementById('thread-result');
-  const major = num('th-major'), tpi = num('th-tpi');
+  const major = window.MGP.utils.num('th-major'), tpi = window.MGP.utils.num('th-tpi');
   if (!major || !tpi) { out.innerHTML = 'Enter major diameter and TPI.'; return; }
   const p = 1 / tpi;
   out.innerHTML =
@@ -136,7 +136,7 @@ function calcThread() {
 
 function calcTap() {
   const out = document.getElementById('tap-result');
-  const major = num('tap-major'), tpi = num('tap-tpi'), drill = num('tap-drill');
+  const major = window.MGP.utils.num('tap-major'), tpi = window.MGP.utils.num('tap-tpi'), drill = window.MGP.utils.num('tap-drill');
   if (!major || !tpi) { out.innerHTML = 'Enter major diameter and TPI.'; return; }
   const p = 1 / tpi;
   const tapDrillBasic = major - p;
@@ -152,7 +152,7 @@ function calcTap() {
 
 function calcTruePos() {
   const out = document.getElementById('truepos-result');
-  const x = num('tp-xdev'), y = num('tp-ydev');
+  const x = window.MGP.utils.num('tp-xdev'), y = window.MGP.utils.num('tp-ydev');
   if (x == null || y == null) { out.innerHTML = 'Enter X and Y deviation.'; return; }
   const tp = 2 * Math.sqrt(x * x + y * y);
   out.innerHTML = `True position deviation: <b>${tp.toFixed(4)}</b><br>From datums, regardless of sign. Compare to the position tolerance on the print.`;
@@ -160,7 +160,7 @@ function calcTruePos() {
 
 function calcBolt() {
   const out = document.getElementById('bolt-result');
-  const n = num('bolt-n'), r = num('bolt-r');
+  const n = window.MGP.utils.num('bolt-n'), r = window.MGP.utils.num('bolt-r');
   if (!n || !r) { out.innerHTML = 'Enter count and radius.'; return; }
   let rows = '';
   for (let i = 0; i < n; i++) {
@@ -175,7 +175,7 @@ function calcBolt() {
 
 function calcConv() {
   const out = document.getElementById('conv-result');
-  const v = num('conv-val');
+  const v = window.MGP.utils.num('conv-val');
   const from = document.getElementById('conv-from').value;
   const to = document.getElementById('conv-to').value;
   if (v == null) { out.innerHTML = 'Enter a value.'; return; }
@@ -221,7 +221,7 @@ function popWeightMats() {
 // Hardness: HRC central; convert to others via common approximations.
 function calcHard() {
   const out = document.getElementById('hard-result');
-  const v = num('hard-val');
+  const v = window.MGP.utils.num('hard-val');
   const from = document.getElementById('hard-from').value;
   if (v == null) { out.innerHTML = 'Enter a value.'; return; }
   let hrc;
@@ -242,7 +242,7 @@ function hbToHrc(v) { return (v - 65) / 9.85; }      // HB -> HRC (inverse of HR
 // Material weight: volume (in³) × density (lb/in³)
 function calcWeight() {
   const out = document.getElementById('wt-result');
-  const vol = num('wt-vol');
+  const vol = window.MGP.utils.num('wt-vol');
   const key = document.getElementById('wt-mat').value;
   const d = window.MGP.DATA.DENSITY[key];
   if (vol == null) { out.innerHTML = 'Enter a volume.'; return; }
@@ -254,7 +254,7 @@ function calcWeight() {
 // Tap drill %: compares actual drill to "basic" major - pitch.
 function calcTapPct() {
   const out = document.getElementById('tap2-result');
-  const major = num('tap2-major'), tpi = num('tap2-tpi'), drill = num('tap2-drill');
+  const major = window.MGP.utils.num('tap2-major'), tpi = window.MGP.utils.num('tap2-tpi'), drill = window.MGP.utils.num('tap2-drill');
   if (!major || !tpi || drill == null) { out.innerHTML = 'Enter major, TPI, and drill.'; return; }
   const p = 1 / tpi;
   const pitchDia = major - 0.64952 * p;
@@ -268,7 +268,7 @@ function calcTapPct() {
 // Thread 3-wire: best wire diameter + measurement over wires (M).
 function calcWire() {
   const out = document.getElementById('wire-result');
-  const major = num('wire-major'), tpi = num('wire-tpi');
+  const major = window.MGP.utils.num('wire-major'), tpi = window.MGP.utils.num('wire-tpi');
   if (!major || !tpi) { out.innerHTML = 'Enter major diameter and TPI.'; return; }
   const p = 1 / tpi;
   const E = 1.01036 * p / 2;                        // best wire diameter (60° thread)
@@ -278,14 +278,6 @@ function calcWire() {
 }
 
 // Fisher-Yates shuffle (returns a new array; does not mutate input)
-function shuffleArr(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 // Machinist self-test
 function startSelfTest() {
@@ -295,8 +287,8 @@ function startSelfTest() {
   if (!qs) { out.innerHTML = 'Pick a category.'; return; }
   let html = '';
   let score = 0;
-  shuffleArr(qs).forEach((item, i) => {
-    const opts = shuffleArr(item.a.map((text, j) => ({ text, correct: j === item.c })))
+  window.MGP.utils.shuffleArr(qs).forEach((item, i) => {
+    const opts = window.MGP.utils.shuffleArr(item.a.map((text, j) => ({ text, correct: j === item.c })))
       .map(o => `<button class="st-opt" data-correct="${o.correct}">${o.text}</button>`)
       .join('');
     html += `<div class="st-q">${i + 1}. ${item.q}<br>${opts}</div>`;
